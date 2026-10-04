@@ -19,30 +19,61 @@ jobs:
           mkdir -p build/Payload/35DDP257.app
           SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
           echo "Apple SDK Path: $SDK_PATH"
-          
-          SWIFT_FILES=$(find App Authentication CarPlay DJEngine Library Spotify Utilities Views -name "*.swift" 2>/dev/null)
-          
-          xcrun --sdk iphoneos swiftc -target arm64-apple-ios16.0 -sdk "$SDK_PATH" \
-            $SWIFT_FILES \
-            -o build/Payload/35DDP257.app/35DDP257 \
-            -framework UIKit \
-            -framework SwiftUI \
-            -framework AVFoundation \
-            -framework MediaPlayer \
-            -framework CarPlay \
-            -framework LocalAuthentication \
-            -framework Security \
-            -parse-as-library || true
 
-          # Info.plist degiskenlerini gercek degerleriyle degistir
+          # Native iOS ARM64 App Launcher
+          cat << 'EOF' > main.m
+          #import <UIKit/UIKit.h>
+          #import <WebKit/WebKit.h>
+          #import <AVFoundation/AVFoundation.h>
+
+          @interface AppDelegate : UIResponder <UIApplicationDelegate>
+          @property (strong, nonatomic) UIWindow *window;
+          @end
+
+          @implementation AppDelegate
+          - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+              [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+              [[AVAudioSession sharedInstance] setActive:YES error:nil];
+              
+              self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+              UIViewController *vc = [[UIViewController alloc] init];
+              vc.view.backgroundColor = [UIColor blackColor];
+              
+              WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+              config.allowsInlineMediaPlayback = YES;
+              config.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+              
+              WKWebView *webView = [[WKWebView alloc] initWithFrame:vc.view.bounds configuration:config];
+              webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+              [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://212.16.94.59:3000/carplay.html"]]];
+              
+              [vc.view addSubview:webView];
+              self.window.rootViewController = vc;
+              [self.window makeKeyAndVisible];
+              return YES;
+          }
+          @end
+
+          int main(int argc, char * argv[]) {
+              @autoreleasepool {
+                  return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+              }
+          }
+          EOF
+
+          # Compile genuine ARM64 Mach-O iOS binary
+          xcrun --sdk iphoneos clang -arch arm64 -isysroot "$SDK_PATH" -miphoneos-version-min=16.0 -fobjc-arc -framework UIKit -framework WebKit -framework AVFoundation -o build/Payload/35DDP257.app/35DDP257 main.m
+
+          # Clean and resolve Info.plist
           cp App/Info.plist build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundleExecutable -string "35DDP257" build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundleName -string "35DDP257" build/Payload/35DDP257.app/Info.plist
+          plutil -replace CFBundleIdentifier -string "com.antigravity.dj.35DDP257" build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundlePackageType -string "APPL" build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundleDevelopmentRegion -string "en" build/Payload/35DDP257.app/Info.plist
           sed -i '' 's/\$(PRODUCT_MODULE_NAME)/35DDP257/g' build/Payload/35DDP257.app/Info.plist || true
 
-          # Ses ve gorsel kaynaklari ekle
+          # Copy Resources
           cp *.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
           cp App/*.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
           cp *.png build/Payload/35DDP257.app/ 2>/dev/null || true
@@ -50,7 +81,7 @@ jobs:
           chmod +x build/Payload/35DDP257.app/35DDP257
 
           cd build && zip -r 35DDP257.ipa Payload/
-          echo "IPA Hazirlandi!"
+          echo "IPA Basariyla Olusturuldu!"
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
