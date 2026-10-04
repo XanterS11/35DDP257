@@ -20,12 +20,36 @@ jobs:
           SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
           echo "Apple SDK Path: $SDK_PATH"
 
-          # Native iOS & CarPlay Scene Launcher
+          # Native iOS & CarPlay Scene Launcher with Guaranteed Display
           cat << 'EOF' > main.m
           #import <UIKit/UIKit.h>
           #import <WebKit/WebKit.h>
           #import <AVFoundation/AVFoundation.h>
           #import <CarPlay/CarPlay.h>
+
+          static void SetupWebViewOnViewController(UIViewController *vc) {
+              vc.view.backgroundColor = [UIColor colorWithRed:0.02 green:0.03 blue:0.05 alpha:1.0];
+              
+              WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+              config.allowsInlineMediaPlayback = YES;
+              config.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+              
+              WKWebView *webView = [[WKWebView alloc] initWithFrame:vc.view.bounds configuration:config];
+              webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+              webView.scrollView.bounces = NO;
+              webView.backgroundColor = [UIColor colorWithRed:0.02 green:0.03 blue:0.05 alpha:1.0];
+              webView.opaque = NO;
+              
+              NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];
+              if (htmlPath && [[NSFileManager defaultManager] fileExistsAtPath:htmlPath]) {
+                  NSURL *fileURL = [NSURL fileURLWithPath:htmlPath];
+                  [webView loadFileURL:fileURL allowingReadAccessToURL:[[NSBundle mainBundle] bundleURL]];
+              } else {
+                  [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://212.16.94.59:3000/index.html"]]];
+              }
+              
+              [vc.view addSubview:webView];
+          }
 
           @interface SceneDelegate : UIResponder <UIWindowSceneDelegate>
           @property (strong, nonatomic) UIWindow *window;
@@ -38,25 +62,7 @@ jobs:
               
               self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
               UIViewController *vc = [[UIViewController alloc] init];
-              vc.view.backgroundColor = [UIColor colorWithRed:0.04 green:0.05 blue:0.08 alpha:1.0];
-              
-              WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
-              config.allowsInlineMediaPlayback = YES;
-              config.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
-              
-              WKWebView *webView = [[WKWebView alloc] initWithFrame:vc.view.bounds configuration:config];
-              webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-              webView.scrollView.bounces = NO;
-              
-              NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];
-              if (htmlPath) {
-                  NSURL *fileURL = [NSURL fileURLWithPath:htmlPath];
-                  [webView loadFileURL:fileURL allowingReadAccessToURL:[fileURL URLByDeletingLastPathComponent]];
-              } else {
-                  [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://212.16.94.59:3000/index.html"]]];
-              }
-              
-              [vc.view addSubview:webView];
+              SetupWebViewOnViewController(vc);
               self.window.rootViewController = vc;
               [self.window makeKeyAndVisible];
           }
@@ -97,14 +103,20 @@ jobs:
           - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
               [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
               [[AVAudioSession sharedInstance] setActive:YES error:nil];
+              
+              self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+              UIViewController *vc = [[UIViewController alloc] init];
+              SetupWebViewOnViewController(vc);
+              self.window.rootViewController = vc;
+              [self.window makeKeyAndVisible];
               return YES;
           }
 
           - (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options {
               if ([connectingSceneSession.role isEqualToString:@"CPTemplateApplicationSceneSessionRoleApplication"]) {
-                  return [[UISceneConfiguration alloc] initWithName:@"CarPlay Configuration" sessionRole:connectingSceneSession.role];
+                  return [[UISceneConfiguration alloc] initWithName:@"CarPlay" sessionRole:connectingSceneSession.role];
               }
-              return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+              return [[UISceneConfiguration alloc] initWithName:@"Default" sessionRole:connectingSceneSession.role];
           }
           @end
 
@@ -126,9 +138,8 @@ jobs:
           plutil -replace CFBundlePackageType -string "APPL" build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundleDevelopmentRegion -string "en" build/Payload/35DDP257.app/Info.plist
           
-          # Fix Scene Delegate class names in Info.plist
-          sed -i '' 's/\$(PRODUCT_MODULE_NAME)\.SceneDelegate/SceneDelegate/g' build/Payload/35DDP257.app/Info.plist || true
-          sed -i '' 's/\$(PRODUCT_MODULE_NAME)\.CarPlaySceneDelegate/CarPlaySceneDelegate/g' build/Payload/35DDP257.app/Info.plist || true
+          # Exact Scene Configuration for both Phone Window and CarPlay
+          plutil -replace UIApplicationSceneManifest -xml '<dict><key>UIApplicationSupportsMultipleScenes</key><true/><key>UISceneConfigurations</key><dict><key>UIWindowSceneSessionRoleApplication</key><array><dict><key>UISceneConfigurationName</key><string>Default</string><key>UISceneDelegateClassName</key><string>SceneDelegate</string></dict></array><key>CPTemplateApplicationSceneSessionRoleApplication</key><array><dict><key>UISceneConfigurationName</key><string>CarPlay</string><key>UISceneDelegateClassName</key><string>CarPlaySceneDelegate</string></dict></array></dict></dict>' build/Payload/35DDP257.app/Info.plist
           
           # Enable App Transport Security for remote calls
           plutil -insert NSAppTransportSecurity -xml "<dict><key>NSAllowsArbitraryLoads</key><true/></dict>" build/Payload/35DDP257.app/Info.plist || true
@@ -138,6 +149,7 @@ jobs:
           cp preview/carplay.html build/Payload/35DDP257.app/carplay.html || true
           cp *.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
           cp preview/*.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
+          cp *.wav build/Payload/35DDP257.app/ 2>/dev/null || true
           cp *.png build/Payload/35DDP257.app/ 2>/dev/null || true
           cp preview/*.png build/Payload/35DDP257.app/ 2>/dev/null || true
 
