@@ -20,24 +20,25 @@ jobs:
           SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
           echo "Apple SDK Path: $SDK_PATH"
 
-          # Native iOS ARM64 App Launcher
+          # Native iOS & CarPlay Scene Launcher
           cat << 'EOF' > main.m
           #import <UIKit/UIKit.h>
           #import <WebKit/WebKit.h>
           #import <AVFoundation/AVFoundation.h>
+          #import <CarPlay/CarPlay.h>
 
-          @interface AppDelegate : UIResponder <UIApplicationDelegate>
+          @interface SceneDelegate : UIResponder <UIWindowSceneDelegate>
           @property (strong, nonatomic) UIWindow *window;
           @end
 
-          @implementation AppDelegate
-          - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-              [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
-              [[AVAudioSession sharedInstance] setActive:YES error:nil];
+          @implementation SceneDelegate
+          - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+              if (![scene isKindOfClass:[UIWindowScene class]]) return;
+              UIWindowScene *windowScene = (UIWindowScene *)scene;
               
-              self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+              self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
               UIViewController *vc = [[UIViewController alloc] init];
-              vc.view.backgroundColor = [UIColor blackColor];
+              vc.view.backgroundColor = [UIColor colorWithRed:0.04 green:0.05 blue:0.08 alpha:1.0];
               
               WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
               config.allowsInlineMediaPlayback = YES;
@@ -45,12 +46,65 @@ jobs:
               
               WKWebView *webView = [[WKWebView alloc] initWithFrame:vc.view.bounds configuration:config];
               webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-              [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://212.16.94.59:3000/carplay.html"]]];
+              webView.scrollView.bounces = NO;
+              
+              NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];
+              if (htmlPath) {
+                  NSURL *fileURL = [NSURL fileURLWithPath:htmlPath];
+                  [webView loadFileURL:fileURL allowingReadAccessToURL:[fileURL URLByDeletingLastPathComponent]];
+              } else {
+                  [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://212.16.94.59:3000/index.html"]]];
+              }
               
               [vc.view addSubview:webView];
               self.window.rootViewController = vc;
               [self.window makeKeyAndVisible];
+          }
+          @end
+
+          @interface CarPlaySceneDelegate : UIResponder <CPTemplateApplicationSceneDelegate>
+          @property (strong, nonatomic) CPInterfaceController *interfaceController;
+          @end
+
+          @implementation CarPlaySceneDelegate
+          - (void)templateApplicationScene:(CPTemplateApplicationScene *)templateApplicationScene didConnectInterfaceController:(CPInterfaceController *)interfaceController {
+              self.interfaceController = interfaceController;
+              
+              CPListItem *item1 = [[CPListItem alloc] initWithText:@"🎛️ 35 DDP 257 DJ Konsolu" detailText:@"Party Accelerator & Bomba Aktif"];
+              CPListItem *item2 = [[CPListItem alloc] initWithText:@"🎵 Çalan Parça (Now Playing)" detailText:@"Spotify Canlı Senkron"];
+              
+              item2.handler = ^(id<CPSelectableListItem> item, dispatch_block_t completionBlock) {
+                  [interfaceController pushTemplate:[CPNowPlayingTemplate sharedTemplate] animated:YES completion:nil];
+                  completionBlock();
+              };
+              
+              CPListSection *section = [[CPListSection alloc] initWithItems:@[item1, item2] header:@"BMW 35 DDP 257 • DJ CONSOLE" sectionIndexTitle:nil];
+              CPListTemplate *listTemplate = [[CPListTemplate alloc] initWithTitle:@"35 DDP 257" sections:@[section]];
+              
+              [interfaceController setRootTemplate:listTemplate animated:YES completion:nil];
+          }
+
+          - (void)templateApplicationScene:(CPTemplateApplicationScene *)templateApplicationScene didDisconnectInterfaceController:(CPInterfaceController *)interfaceController {
+              self.interfaceController = nil;
+          }
+          @end
+
+          @interface AppDelegate : UIResponder <UIApplicationDelegate>
+          @property (strong, nonatomic) UIWindow *window;
+          @end
+
+          @implementation AppDelegate
+          - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+              [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+              [[AVAudioSession sharedInstance] setActive:YES error:nil];
               return YES;
+          }
+
+          - (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options {
+              if ([connectingSceneSession.role isEqualToString:@"CPTemplateApplicationSceneSessionRoleApplication"]) {
+                  return [[UISceneConfiguration alloc] initWithName:@"CarPlay Configuration" sessionRole:connectingSceneSession.role];
+              }
+              return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
           }
           @end
 
@@ -62,7 +116,7 @@ jobs:
           EOF
 
           # Compile genuine ARM64 Mach-O iOS binary
-          xcrun --sdk iphoneos clang -arch arm64 -isysroot "$SDK_PATH" -miphoneos-version-min=16.0 -fobjc-arc -framework UIKit -framework WebKit -framework AVFoundation -o build/Payload/35DDP257.app/35DDP257 main.m
+          xcrun --sdk iphoneos clang -arch arm64 -isysroot "$SDK_PATH" -miphoneos-version-min=16.0 -fobjc-arc -framework UIKit -framework WebKit -framework AVFoundation -framework CarPlay -o build/Payload/35DDP257.app/35DDP257 main.m
 
           # Clean and resolve Info.plist
           cp App/Info.plist build/Payload/35DDP257.app/Info.plist
@@ -71,12 +125,21 @@ jobs:
           plutil -replace CFBundleIdentifier -string "com.antigravity.dj.35DDP257" build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundlePackageType -string "APPL" build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundleDevelopmentRegion -string "en" build/Payload/35DDP257.app/Info.plist
-          sed -i '' 's/\$(PRODUCT_MODULE_NAME)/35DDP257/g' build/Payload/35DDP257.app/Info.plist || true
+          
+          # Fix Scene Delegate class names in Info.plist
+          sed -i '' 's/\$(PRODUCT_MODULE_NAME)\.SceneDelegate/SceneDelegate/g' build/Payload/35DDP257.app/Info.plist || true
+          sed -i '' 's/\$(PRODUCT_MODULE_NAME)\.CarPlaySceneDelegate/CarPlaySceneDelegate/g' build/Payload/35DDP257.app/Info.plist || true
+          
+          # Enable App Transport Security for remote calls
+          plutil -insert NSAppTransportSecurity -xml "<dict><key>NSAllowsArbitraryLoads</key><true/></dict>" build/Payload/35DDP257.app/Info.plist || true
 
-          # Copy Resources
+          # Copy Web UI & Assets directly inside bundle for instant local loading
+          cp preview/index.html build/Payload/35DDP257.app/index.html || true
+          cp preview/carplay.html build/Payload/35DDP257.app/carplay.html || true
           cp *.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
-          cp App/*.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
+          cp preview/*.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
           cp *.png build/Payload/35DDP257.app/ 2>/dev/null || true
+          cp preview/*.png build/Payload/35DDP257.app/ 2>/dev/null || true
 
           chmod +x build/Payload/35DDP257.app/35DDP257
 
