@@ -34,24 +34,23 @@ jobs:
             -framework Security \
             -parse-as-library || true
 
-          if [ ! -f "build/Payload/35DDP257.app/35DDP257" ]; then
-            echo "Building via SPM..."
-            swift build -c release --triple arm64-apple-ios16.0 || true
-            BIN=$(find .build -type f -perm +111 -name "*35DDP257*" | head -n 1)
-            [ -n "$BIN" ] && cp "$BIN" build/Payload/35DDP257.app/35DDP257
-          fi
-
-          if [ ! -f "build/Payload/35DDP257.app/35DDP257" ]; then
-            echo '#!/bin/sh' > build/Payload/35DDP257.app/35DDP257
-            chmod +x build/Payload/35DDP257.app/35DDP257
-          fi
-
+          # Info.plist degiskenlerini gercek degerleriyle degistir
           cp App/Info.plist build/Payload/35DDP257.app/Info.plist
+          plutil -replace CFBundleExecutable -string "35DDP257" build/Payload/35DDP257.app/Info.plist
+          plutil -replace CFBundleName -string "35DDP257" build/Payload/35DDP257.app/Info.plist
+          plutil -replace CFBundlePackageType -string "APPL" build/Payload/35DDP257.app/Info.plist
+          plutil -replace CFBundleDevelopmentRegion -string "en" build/Payload/35DDP257.app/Info.plist
+          sed -i '' 's/\$(PRODUCT_MODULE_NAME)/35DDP257/g' build/Payload/35DDP257.app/Info.plist || true
+
+          # Ses ve gorsel kaynaklari ekle
           cp *.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
+          cp App/*.mp3 build/Payload/35DDP257.app/ 2>/dev/null || true
           cp *.png build/Payload/35DDP257.app/ 2>/dev/null || true
 
+          chmod +x build/Payload/35DDP257.app/35DDP257
+
           cd build && zip -r 35DDP257.ipa Payload/
-          echo "IPA Olusturuldu!"
+          echo "IPA Hazirlandi!"
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
