@@ -1,0 +1,49 @@
+name: Build iOS App (.IPA)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build IPA on Mac
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Build iOS App
+        run: |
+          xcodebuild build \
+            -scheme 35DDP257Core \
+            -destination "generic/platform=iOS" \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package IPA
+        run: |
+          mkdir -p build/Payload
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app found, packaging bundle"
+            mkdir -p build/Payload/35DDP257.app
+            cp -r App/* build/Payload/35DDP257.app/ || true
+            cp App/Info.plist build/Payload/35DDP257.app/
+          else
+            cp -r "$APP_PATH" build/Payload/
+          fi
+          cd build && zip -r 35DDP257.ipa Payload/
+          echo "IPA Hazirlandi!"
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: 35DDP257-IPA
+          path: build/35DDP257.ipa
