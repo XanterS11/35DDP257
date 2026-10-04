@@ -20,7 +20,7 @@ jobs:
           SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
           echo "Apple SDK Path: $SDK_PATH"
 
-          # Native iOS & CarPlay Scene Launcher with Guaranteed Display
+          # Native iOS & CarPlay Scene Launcher with True Fullscreen
           cat << 'EOF' > main.m
           #import <UIKit/UIKit.h>
           #import <WebKit/WebKit.h>
@@ -28,15 +28,18 @@ jobs:
           #import <CarPlay/CarPlay.h>
 
           static void SetupWebViewOnViewController(UIViewController *vc) {
+              CGRect screenBounds = [[UIScreen mainScreen] bounds];
+              vc.view.frame = screenBounds;
               vc.view.backgroundColor = [UIColor colorWithRed:0.02 green:0.03 blue:0.05 alpha:1.0];
               
               WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
               config.allowsInlineMediaPlayback = YES;
               config.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
               
-              WKWebView *webView = [[WKWebView alloc] initWithFrame:vc.view.bounds configuration:config];
+              WKWebView *webView = [[WKWebView alloc] initWithFrame:screenBounds configuration:config];
               webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
               webView.scrollView.bounces = NO;
+              webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
               webView.backgroundColor = [UIColor colorWithRed:0.02 green:0.03 blue:0.05 alpha:1.0];
               webView.opaque = NO;
               
@@ -138,6 +141,11 @@ jobs:
           plutil -replace CFBundlePackageType -string "APPL" build/Payload/35DDP257.app/Info.plist
           plutil -replace CFBundleDevelopmentRegion -string "en" build/Payload/35DDP257.app/Info.plist
           
+          # Force Fullscreen on iPhone 13 (Native Screen Resolution & LaunchScreen)
+          plutil -insert UILaunchScreen -xml '<dict/>' build/Payload/35DDP257.app/Info.plist || true
+          plutil -insert UIDeviceFamily -xml '<array><integer>1</integer><integer>2</integer></array>' build/Payload/35DDP257.app/Info.plist || true
+          plutil -replace UIRequiresFullScreen -bool true build/Payload/35DDP257.app/Info.plist || true
+
           # Exact Scene Configuration for both Phone Window and CarPlay
           plutil -replace UIApplicationSceneManifest -xml '<dict><key>UIApplicationSupportsMultipleScenes</key><true/><key>UISceneConfigurations</key><dict><key>UIWindowSceneSessionRoleApplication</key><array><dict><key>UISceneConfigurationName</key><string>Default</string><key>UISceneDelegateClassName</key><string>SceneDelegate</string></dict></array><key>CPTemplateApplicationSceneSessionRoleApplication</key><array><dict><key>UISceneConfigurationName</key><string>CarPlay</string><key>UISceneDelegateClassName</key><string>CarPlaySceneDelegate</string></dict></array></dict></dict>' build/Payload/35DDP257.app/Info.plist
           
