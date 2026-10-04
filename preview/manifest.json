@@ -1,0 +1,24 @@
+{
+  "name": "35 DDP 257 DJ Pro Console",
+  "short_name": "35 DDP 257",
+  "description": "BMW M-Performance DJ Console",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06070A",
+  "theme_color": "#06070A",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "bmw.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

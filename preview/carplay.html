@@ -1,0 +1,3146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>35 DDP 257 • Apple CarPlay M-Performance DJ Cockpit</title>
+    
+    <!-- iOS Web App & CarPlay Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="35DDP257 CarPlay">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#030508">
+    
+    <link rel="icon" type="image/png" href="bmw.png?v=35257">
+    <link rel="apple-touch-icon" href="bmw.png?v=35257">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@800;900&family=JetBrains+Mono:wght@700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-cockpit: #04060A;
+            --surface-panel: #0C1017;
+            --surface-card: #131822;
+            --surface-active: #1C2433;
+            --border-glow: rgba(0, 163, 224, 0.35);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            
+            /* BMW M Performance Tri-Color */
+            --bmw-light-blue: #00A3E0;
+            --bmw-dark-blue: #002664;
+            --bmw-red: #E2001A;
+            
+            /* Neon Accents */
+            --neon-cyan: #00F0FF;
+            --neon-magenta: #FF006E;
+            --neon-green: #00FF88;
+            --neon-amber: #FFB800;
+            --neon-purple: #B026FF;
+            
+            --text-primary: #FFFFFF;
+            --text-secondary: #8E9BAE;
+            --text-muted: #536074;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-cockpit);
+            color: var(--text-primary);
+        }
+
+        /* FULL COCKPIT CONTAINER */
+        .cockpit-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at 50% 20%, rgba(0, 38, 100, 0.35) 0%, rgba(4, 6, 10, 0.98) 75%);
+            position: relative;
+        }
+
+        /* 1. TOP CARPLAY TELEMETRY BAR */
+        .car-top-bar {
+            height: 48px;
+            background: rgba(8, 11, 16, 0.95);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .car-brand-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .car-bmw-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: contain;
+            box-shadow: 0 0 12px rgba(0, 163, 224, 0.6);
+            cursor: pointer;
+        }
+
+        .car-plate-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: #FFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .m-stripes {
+            display: inline-flex;
+            height: 12px;
+            gap: 2px;
+        }
+        .m-stripes span {
+            width: 4px;
+            border-radius: 1px;
+            transform: skewX(-20deg);
+        }
+        .m-stripe-1 { background: var(--bmw-light-blue); }
+        .m-stripe-2 { background: var(--bmw-dark-blue); }
+        .m-stripe-3 { background: var(--bmw-red); }
+
+        .car-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--neon-green);
+        }
+
+        .car-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulseGreen 1.5s infinite alternate;
+        }
+
+        @keyframes pulseGreen {
+            from { opacity: 0.5; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1.2); }
+        }
+
+        .car-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .car-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .top-btn {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            color: #FFF;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            transition: transform 0.1s ease;
+        }
+
+        .top-btn:active {
+            transform: scale(0.96);
+            background: var(--surface-active);
+        }
+
+
+
+        /* 2. THREE-WING CARPLAY COCKPIT GRID */
+        .cockpit-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 330px 1fr 360px;
+            gap: 12px;
+            padding: 8px 14px;
+            overflow: hidden;
+        }
+
+        @media (max-width: 950px) {
+            .cockpit-grid {
+                grid-template-columns: 280px 1fr 300px;
+                gap: 8px;
+                padding: 6px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cockpit-grid {
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+        }
+
+        /* WING COMMON CARD */
+        .cockpit-wing {
+            background: var(--surface-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wing-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .wing-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .wing-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(0, 163, 224, 0.15);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 163, 224, 0.3);
+        }
+
+        /* ==================================================== */
+        /* WING 1: BMW M PARTY ACCELERATOR (SOL PANEL)          */
+        /* ==================================================== */
+        .accel-deck-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .accel-telemetry-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .accel-hud-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        .accel-boost-text {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .accel-sub-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.8px;
+        }
+
+        .accel-pct-val {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            letter-spacing: 0.5px;
+        }
+
+        .accel-rpm-box {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--neon-amber);
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+        }
+
+        .accel-rpm-unit {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .accel-bar-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+        }
+
+        .accel-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--bmw-light-blue) 0%, var(--neon-cyan) 40%, var(--neon-amber) 75%, var(--bmw-red) 100%);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--neon-cyan);
+            transition: width 0.06s linear;
+        }
+
+        .accel-status-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .accel-status-badge.boosted {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
+
+        .accel-status-badge.redline {
+            color: var(--bmw-red);
+            text-shadow: 0 0 12px rgba(226, 0, 26, 0.9);
+            animation: pulse-redline 0.3s infinite alternate;
+        }
+
+        @keyframes pulse-redline {
+            from { transform: scale(1); filter: brightness(1); }
+            to { transform: scale(1.02); filter: brightness(1.4); }
+        }
+
+        /* Vertical Pedal / Throttle Lever */
+        .accel-pedal-container {
+            flex: 1;
+            min-height: 160px;
+            background: radial-gradient(circle at center, rgba(16, 22, 33, 0.8) 0%, rgba(9, 12, 18, 0.95) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            display: flex;
+            padding: 10px 14px;
+            gap: 14px;
+            align-items: center;
+            position: relative;
+            touch-action: none !important;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .pedal-stages-col {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .pedal-stage-marker {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            color: var(--text-muted);
+        }
+
+        .pedal-stage-marker:active, .pedal-stage-marker.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: rgba(0, 240, 255, 0.4);
+            color: #FFF;
+        }
+
+        .pedal-stage-marker.s100 { color: var(--bmw-red); }
+        .pedal-stage-marker.s75  { color: var(--neon-magenta); }
+        .pedal-stage-marker.s50  { color: var(--neon-amber); }
+        .pedal-stage-marker.s25  { color: var(--neon-green); }
+
+        .pedal-track {
+            width: 85px;
+            height: 100%;
+            background: #080B10;
+            border: 2px solid #1E2738;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 6px;
+            cursor: pointer;
+            touch-action: none !important;
+        }
+
+        .pedal-lever {
+            width: 100%;
+            height: 64px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #323C50 0%, #151A24 100%);
+            border: 2px solid #4D5B75;
+            position: absolute;
+            bottom: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.2);
+            transition: bottom 0.05s linear;
+            cursor: grab;
+            touch-action: none !important;
+        }
+
+        .pedal-lever:active {
+            cursor: grabbing;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9), 0 0 25px rgba(0, 240, 255, 0.6);
+        }
+
+        .pedal-metal-plate {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            position: relative;
+        }
+
+        .pedal-grip-stripes {
+            display: flex;
+            gap: 3px;
+            position: absolute;
+            top: 6px;
+        }
+
+        .m-stripe { width: 5px; height: 3px; border-radius: 1px; }
+        .m-blue { background: #00A3E0; }
+        .m-darkblue { background: #002B49; }
+        .m-red { background: #E2231A; }
+
+        .pedal-center-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #0E121B;
+            border: 1px solid #323C50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .pedal-bmw-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: contain;
+        }
+
+        /* Quick Action Buttons */
+        .accel-actions-row {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .accel-action-btn {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 8px 4px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #FFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            transition: transform 0.08s ease, background 0.1s ease;
+        }
+
+        .accel-action-btn:active {
+            transform: scale(0.94);
+        }
+
+        .accel-action-btn.drop-btn  { border-color: rgba(226, 0, 26, 0.4); color: #FFF; background: rgba(226, 0, 26, 0.15); }
+        .accel-action-btn.drop-btn:active { background: rgba(226, 0, 26, 0.35); }
+
+        .accel-action-btn.riser-btn { border-color: rgba(0, 240, 255, 0.35); color: var(--neon-cyan); }
+        .accel-action-btn.riser-btn.active { background: rgba(0, 240, 255, 0.25); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.5); }
+
+        .accel-action-btn.cut-btn   { border-color: rgba(255, 184, 0, 0.35); color: var(--neon-amber); }
+
+        /* ==================================================== */
+        /* WING 2: CENTER HUD & SPOTIFY NOW PLAYING PLAYER     */
+        /* ==================================================== */
+        .center-hud-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        /* Tachometer / RPM Style Dynamic Meter */
+        .tachometer-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .tacho-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .tacho-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #FFF;
+        }
+
+        .bpm-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .led-meter-row {
+            display: flex;
+            gap: 3px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2px 4px;
+            border-radius: 4px;
+            align-items: center;
+        }
+
+        .led-seg {
+            flex: 1;
+            height: 100%;
+            border-radius: 2px;
+            background: #1C2433;
+            transition: background 0.08s ease;
+        }
+
+        .led-seg.green.active { background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); }
+        .led-seg.amber.active { background: var(--neon-amber); box-shadow: 0 0 6px var(--neon-amber); }
+        .led-seg.red.active { background: var(--bmw-red); box-shadow: 0 0 8px var(--bmw-red); }
+
+        /* SPOTIFY LIVE NOW PLAYING CARD */
+        .spot-now-playing-card {
+            background: linear-gradient(135deg, rgba(19, 24, 34, 0.95) 0%, rgba(10, 14, 20, 0.98) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .spot-card-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Album Cover Box */
+        /* Album Cover Box (BÜYÜTÜLDÜ) */
+        .spot-cover-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(0, 255, 136, 0.45);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 15px rgba(0, 255, 136, 0.25);
+            cursor: pointer;
+            background: #080B10;
+        }
+
+        .spot-cover-art {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .spot-cover-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 4px;
+            padding: 2px 4px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 13px;
+        }
+
+        .spot-eq-bar {
+            width: 2.5px;
+            background: var(--neon-green);
+            border-radius: 1px;
+        }
+        .b1 { height: 60%; animation: eqBounce 0.8s infinite alternate ease-in-out; }
+        .b2 { height: 100%; animation: eqBounce 0.6s infinite alternate 0.2s ease-in-out; }
+        .b3 { height: 40%; animation: eqBounce 0.7s infinite alternate 0.4s ease-in-out; }
+
+        @keyframes eqBounce {
+            from { height: 20%; }
+            to { height: 100%; }
+        }
+
+        .spot-meta-col {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .spot-badge-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+
+        .spot-brand-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--neon-green);
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .spot-track-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            color: #FFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+        }
+
+        .spot-track-artist {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* TIMELINE & LIVE MINUTE/SECOND PROGRESS (BÜYÜTÜLDÜ) */
+        .spot-timeline-section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 2px;
+        }
+
+        .spot-time-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .spot-time-current {
+            color: var(--neon-green);
+            font-size: 13px;
+        }
+
+        .spot-status-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.6px;
+            font-weight: 800;
+        }
+
+        .spot-time-total {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Scrubbable Progress Bar */
+        .spot-progress-bar-bg {
+            width: 100%;
+            height: 9px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .spot-progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--bmw-light-blue), var(--neon-green));
+            border-radius: 5px;
+            width: 35%;
+            transition: width 0.25s linear;
+        }
+
+        /* Transport Controls (Prev, Play/Pause, Next) */
+        .spot-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding-top: 2px;
+        }
+
+        .spot-ctrl-btn {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            color: #FFF;
+            width: 40px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .spot-ctrl-btn:active {
+            transform: scale(0.92);
+            background: var(--surface-active);
+        }
+
+        .spot-ctrl-btn.play-pause-btn {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.4);
+            color: var(--neon-green);
+            font-size: 16px;
+            width: 48px;
+        }
+
+        /* Sliders Card */
+        .cockpit-sliders-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cockpit-slider-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            width: 70px;
+        }
+
+        .cockpit-range {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .cockpit-range.cyan { accent-color: var(--neon-cyan); }
+        .cockpit-range.green { accent-color: var(--neon-green); }
+        .cockpit-range.pink { accent-color: var(--neon-magenta); }
+
+        .slider-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 800;
+            color: #FFF;
+            min-width: 34px;
+            text-align: right;
+        }
+
+        
+        /* ==================================================== */
+        /* WING 1: VOLUME CHANNELS (SOL PANEL - YUKARIDAN ALTA) */
+        /* ==================================================== */
+        .volume-channels-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .vol-channel-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .vol-channel-card.ch-master { border-left: 4px solid var(--neon-cyan); }
+        .vol-channel-card.ch-accel  { border-left: 4px solid var(--neon-green); }
+        .vol-channel-card.ch-hit    { border-left: 4px solid var(--neon-magenta); }
+
+        .vol-ch-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .vol-ch-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vol-ch-icon {
+            font-size: 16px;
+        }
+
+        .vol-ch-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            color: #FFF;
+            letter-spacing: 0.5px;
+        }
+
+        .vol-ch-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .vol-ch-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 900;
+            color: #FFF;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .vol-slider-row {
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .cockpit-range-large {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            background: #080B10;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+
+        .cockpit-range-large::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #FFF;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            border: 2px solid #1C2433;
+        }
+
+        .cockpit-range-large.cyan::-webkit-slider-thumb {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 12px var(--neon-cyan);
+            border-color: #002664;
+        }
+
+        .cockpit-range-large.green::-webkit-slider-thumb {
+            background: var(--neon-green);
+            box-shadow: 0 0 12px var(--neon-green);
+            border-color: #002664;
+        }
+
+        .cockpit-range-large.pink::-webkit-slider-thumb {
+            background: var(--neon-magenta);
+            box-shadow: 0 0 12px var(--neon-magenta);
+            border-color: #002664;
+        }
+
+        .vol-presets-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+
+        .vol-preset-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 0;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .vol-preset-btn:active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFF;
+            transform: scale(0.95);
+        }
+
+        /* ==================================================== */
+        /* BOTTOM VIP HIT DECK (ORTA KANAT ALT BÖLÜMÜ)          */
+        /* ==================================================== */
+        .bottom-hits-deck {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bottom-hits-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0 2px;
+        }
+
+        .bottom-hits-tag {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 11px;
+            font-weight: 900;
+            color: #FFF;
+            letter-spacing: 0.8px;
+        }
+
+        .bottom-hits-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .bottom-hits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .bottom-hits-grid .car-hit-pad {
+            padding: 8px 10px;
+            gap: 8px;
+            border-radius: 10px;
+            min-height: 52px;
+            background: rgba(8, 11, 16, 0.65);
+        }
+
+        .bottom-hits-grid .hit-pad-icon {
+            font-size: 20px;
+            width: 24px;
+        }
+
+        .bottom-hits-grid .hit-pad-title {
+            font-size: 12px;
+        }
+
+        .bottom-hits-grid .hit-pad-sub {
+            font-size: 9px;
+        }
+
+        /* ==================================================== */
+        /* WING 3: DRIVER SOUNDBOARD HIT MATRIX (RIGHT)        */
+        /* ==================================================== */
+        .soundboard-matrix {
+            flex: 1;
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .car-hit-pad {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 16px;
+            gap: 14px;
+            cursor: pointer;
+            transition: transform 0.08s ease, filter 0.08s ease, background 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .car-hit-pad:active, .car-hit-pad.flashing {
+            transform: scale(0.96);
+            filter: brightness(1.3);
+        }
+
+        .hit-pad-icon {
+            font-size: 26px;
+            width: 36px;
+            text-align: center;
+        }
+
+        .hit-pad-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .hit-pad-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            color: #FFF;
+        }
+
+        .hit-pad-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            letter-spacing: 0.3px;
+        }
+
+        .pad-airhorn { border-left: 5px solid var(--neon-amber); }
+        .pad-airhorn:active, .pad-airhorn.flashing { background: rgba(255, 184, 0, 0.25); box-shadow: 0 0 25px rgba(255, 184, 0, 0.5); }
+
+        .pad-djburak { border-left: 5px solid var(--neon-cyan); }
+        .pad-djburak:active, .pad-djburak.flashing { background: rgba(0, 240, 255, 0.25); box-shadow: 0 0 25px rgba(0, 240, 255, 0.5); }
+
+        .pad-giveme { border-left: 5px solid var(--neon-magenta); }
+        .pad-giveme:active, .pad-giveme.flashing { background: rgba(255, 0, 110, 0.25); box-shadow: 0 0 25px rgba(255, 0, 110, 0.5); }
+
+        /* ==================================================== */
+        /* LIGHTNING FAST PIN GATE (35257) - NO LAG, 0ms DELAY */
+        /* ==================================================== */
+        .carplay-pin-overlay {
+            position: fixed;
+            inset: 0;
+            background: #04060A; /* Solid dark background, zero GPU blur lag */
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.15s ease, visibility 0.15s ease;
+            will-change: opacity, visibility;
+        }
+
+        .carplay-pin-overlay.unlocked {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .pin-box {
+            background: var(--surface-panel);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 20px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 163, 224, 0.2);
+            max-width: 360px;
+            width: 88%;
+        }
+
+        .pin-bmw-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: contain;
+            margin-bottom: 6px;
+            box-shadow: 0 0 18px rgba(0, 163, 224, 0.6);
+            cursor: pointer;
+        }
+
+        .pin-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #FFF;
+        }
+
+        .pin-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--bmw-light-blue);
+            margin-top: 2px;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .pin-dots-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .pin-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--border-subtle);
+            transition: background 0.05s ease;
+        }
+
+        .pin-dot.filled {
+            background: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan);
+            transform: scale(1.1);
+        }
+
+        .pin-status-msg {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            min-height: 16px;
+        }
+
+        .car-keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .car-key-btn {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: #FFF;
+            cursor: pointer;
+            transition: transform 0.05s ease, background 0.05s ease;
+            touch-action: manipulation;
+        }
+
+        .car-key-btn:active {
+            transform: scale(0.92);
+            background: var(--surface-active);
+        }
+
+        .car-key-btn.action {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* MODAL FOR SPOTIFY LINK & TRACK SELECTION */
+        .spot-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+        .spot-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spot-modal-card {
+            background: var(--surface-panel);
+            border: 1px solid var(--border-glow);
+            border-radius: 18px;
+            padding: 20px;
+            max-width: 480px;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+        }
+
+        .spot-modal-title {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            color: #FFF;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .spot-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .spot-url-input {
+            flex: 1;
+            background: #080B10;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #FFF;
+            font-size: 12px;
+            outline: none;
+        }
+        .spot-url-input:focus { border-color: var(--neon-green); }
+
+        .spot-fetch-btn {
+            background: #1DB954;
+            color: #000;
+            font-weight: 900;
+            font-size: 12px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .spot-modal-tabs {
+            display: flex;
+            gap: 6px;
+            background: #080B10;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+        }
+        .spot-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 6px 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .spot-tab-btn.active {
+            background: #1DB954;
+            color: #000;
+        }
+        .spot-connect-banner {
+            background: rgba(29, 185, 84, 0.12);
+            border: 1px solid rgba(29, 185, 84, 0.4);
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+        .spot-quick-change-btn {
+            background: rgba(29, 185, 84, 0.18);
+            border: 1px solid rgba(29, 185, 84, 0.6);
+            color: #1DB954;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .spot-quick-change-btn:hover {
+            background: rgba(29, 185, 84, 0.35);
+            color: #FFF;
+            border-color: #1DB954;
+        }
+
+        .preset-list-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .preset-tracks-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .preset-track-item {
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.1s ease;
+        }
+        .preset-track-item:hover, .preset-track-item:active {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .preset-info h5 {
+            font-size: 12px;
+            font-weight: 800;
+            color: #FFF;
+        }
+        .preset-info p {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+    
+        
+        /* ==================================================== */
+        /* TOP-RIGHT CORNER EXIT BUTTON & STANDBY STYLES       */
+        /* ==================================================== */
+        .top-btn.exit-btn {
+            background: rgba(226, 0, 26, 0.25) !important;
+            border: 1.5px solid rgba(226, 0, 26, 0.7) !important;
+            color: #FF4D4D !important;
+            font-weight: 900 !important;
+            padding: 6px 14px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0 12px rgba(226, 0, 26, 0.25) !important;
+            font-size: 12px !important;
+            transition: all 0.1s ease !important;
+        }
+        .top-btn.exit-btn:active {
+            background: #E2001A !important;
+            color: #FFF !important;
+            transform: scale(0.93) !important;
+            box-shadow: 0 0 18px rgba(226, 0, 26, 0.6) !important;
+        }
+
+        
+
+
+    
+        /* LG XBOOM PARTY ACCELERATOR STROBE FLASH */
+        /* 1 SANİYELİK PATLAMA IŞIK YANIP SÖNME EFEKTİ (1s INTENSE PARTY STROBE) */
+        @keyframes explosionLightFlash1s {
+            0%   { opacity: 1; }
+            10%  { opacity: 0.05; }
+            20%  { opacity: 0.95; }
+            30%  { opacity: 0; }
+            40%  { opacity: 0.9; }
+            50%  { opacity: 0.05; }
+            60%  { opacity: 0.85; }
+            70%  { opacity: 0; }
+            80%  { opacity: 0.75; }
+            90%  { opacity: 0.1; }
+            100% { opacity: 0; }
+        }
+
+        .explosion-strobe-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.95) 0%, rgba(200, 240, 255, 0.85) 45%, rgba(0, 210, 255, 0.6) 100%);
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 999999;
+            animation: explosionLightFlash1s 1.0s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+        }
+
+        @keyframes screenBrightnessStrobe1s {
+            0%   { filter: brightness(3.0) contrast(1.5); }
+            10%  { filter: brightness(0.6); }
+            20%  { filter: brightness(2.8) contrast(1.4); }
+            30%  { filter: brightness(0.7); }
+            40%  { filter: brightness(2.5); }
+            50%  { filter: brightness(0.8); }
+            60%  { filter: brightness(2.2); }
+            70%  { filter: brightness(0.9); }
+            80%  { filter: brightness(1.7); }
+            90%  { filter: brightness(1.1); }
+            100% { filter: brightness(1); }
+        }
+
+        body.strobe-flash-1s {
+            animation: screenBrightnessStrobe1s 1.0s ease-out forwards;
+        }
+
+        @keyframes screenViolentShake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            12% { transform: translate(-9px, 7px) rotate(-1.5deg); }
+            25% { transform: translate(8px, -8px) rotate(1.4deg); }
+            38% { transform: translate(-7px, -5px) rotate(-1.0deg); }
+            50% { transform: translate(6px, 6px) rotate(0.8deg); }
+            65% { transform: translate(-4px, 3px) rotate(-0.5deg); }
+            80% { transform: translate(3px, -2px) rotate(0.3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        body.screen-violentshake {
+            animation: screenViolentShake 0.48s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- ==================================================== -->
+    <!-- 1. LIGHTNING-FAST PIN GATE (35257) - ZERO LAG        -->
+    <!-- ==================================================== -->
+    <div class="carplay-pin-overlay" id="carPinGate">
+        <div class="pin-box">
+            <img src="bmw.png?v=35257" alt="BMW" class="pin-bmw-logo" onpointerdown="quickBypassPin()" title="Logoya dokunarak anında giriş">
+            <h2 class="pin-title">CARPLAY CONSOLE</h2>
+            <div class="pin-sub">ENTER MASTER PIN: 35257</div>
+
+            <div class="pin-dots-bar">
+                <div class="pin-dot" id="cp0"></div>
+                <div class="pin-dot" id="cp1"></div>
+                <div class="pin-dot" id="cp2"></div>
+                <div class="pin-dot" id="cp3"></div>
+                <div class="pin-dot" id="cp4"></div>
+            </div>
+
+            <div class="pin-status-msg" id="carPinMsg">5 Haneli Şifrenizi Girin</div>
+
+            <div class="car-keypad-grid">
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('1', event)">1</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('2', event)">2</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('3', event)">3</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('4', event)">4</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('5', event)">5</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('6', event)">6</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('7', event)">7</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('8', event)">8</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('9', event)">9</button>
+                <button type="button" class="car-key-btn action" onpointerdown="clearCarPin(event)">C</button>
+                <button type="button" class="car-key-btn" onpointerdown="tapCarKey('0', event)">0</button>
+                <button type="button" class="car-key-btn action" onpointerdown="backCarPin(event)">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- SPOTIFY TRACK SELECTION & LINK IMPORT MODAL         -->
+    <!-- ==================================================== -->
+    <div class="spot-modal-overlay" id="spotTrackModal">
+        <div class="spot-modal-card">
+            <div class="spot-modal-title">
+                <span>🎵 CANLI SPOTIFY & ŞARKI MERKEZİ</span>
+                <span style="cursor:pointer; color:var(--text-secondary); font-size:18px;" onclick="closeSpotifyTrackModal()">✕</span>
+            </div>
+
+            <!-- Segmented Tabs -->
+            <div class="spot-modal-tabs">
+                <button class="spot-tab-btn active" id="tabBtnSearch" onclick="switchSpotModalTab('search')">🔍 Şarkı Ara</button>
+                <button class="spot-tab-btn" id="tabBtnPresets" onclick="switchSpotModalTab('presets')">🔥 Hit Listesi</button>
+                <button class="spot-tab-btn" id="tabBtnConnect" onclick="switchSpotModalTab('connect')">🟢 Canlı Spotify</button>
+                <button class="spot-tab-btn" id="tabBtnLink" onclick="switchSpotModalTab('link')">🔗 Link</button>
+            </div>
+
+            <!-- TAB 1: INSTANT SEARCH -->
+            <div class="spot-tab-content" id="spotTabSearch">
+                <div class="spot-input-row">
+                    <input type="text" id="spotifyLiveSearchInput" class="spot-url-input" placeholder="🔍 Sanatçı veya şarkı adı yazın (Örn: Semicenk, Lvbel C5, Motive, Daft Punk)..." oninput="handleLiveSongSearch(this.value)">
+                </div>
+                <div class="preset-tracks-grid" id="liveSearchResultsList" style="margin-top:8px; min-height:160px; max-height:220px;">
+                    <div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:12px;">
+                        Aramak istediğiniz şarkıyı veya sanatçıyı yazın...
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PRESET HIT LIST -->
+            <div class="spot-tab-content" id="spotTabPresets" style="display:none;">
+                <div class="preset-list-title">POPÜLER ARAÇ ÇALMA LİSTESİNDEN SEÇ:</div>
+                <div class="preset-tracks-grid" id="presetTracksList">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- TAB 3: LIVE SPOTIFY CONNECT -->
+            <div class="spot-tab-content" id="spotTabConnect" style="display:none;">
+                <div class="spot-connect-banner">
+                    <div style="font-weight:800; font-size:13px; color:#1DB954; margin-bottom:4px;">🟢 IPHONE SPOTIFY CANLI AKIŞI</div>
+                    <div style="font-size:11px; color:#CCC; line-height:1.4;">
+                        Telefonunuzda çalan Spotify şarkısı CarPlay ekranında canlı olarak anında görünür ve senkronize olur.
+                    </div>
+                </div>
+                <div style="margin-top:10px;">
+                    <div style="font-size:11px; font-weight:800; color:#AAA; margin-bottom:4px;">SPOTIFY KULLANICI TOKENİ VEYA BAĞLANTI:</div>
+                    <div class="spot-input-row">
+                        <input type="password" id="spotifyTokenInput" class="spot-url-input" placeholder="Spotify Access Token yapıştırın...">
+                        <button class="spot-fetch-btn" onclick="saveSpotifyLiveToken()">BAĞLA</button>
+                    </div>
+                    <div id="spotTokenStatus" style="font-size:11px; color:#1DB954; margin-top:6px; font-weight:700;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 4: DIRECT LINK IMPORT -->
+            <div class="spot-tab-content" id="spotTabLink" style="display:none;">
+                <div class="spot-input-row">
+                    <input type="text" id="spotifyLinkInput" class="spot-url-input" placeholder="Spotify şarkı/albüm/playlist linki yapıştırın...">
+                    <button class="spot-fetch-btn" onclick="importSpotifyLink()">YÜKLE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- ==================================================== -->
+    <!-- 3. FULL DJ COCKPIT ARENA                             -->
+    <!-- ==================================================== -->
+    <div class="cockpit-container" id="cockpitArena">
+        
+        <!-- Top Status Bar -->
+        <header class="car-top-bar">
+            <div class="car-brand-group">
+                <img src="bmw.png?v=35257" alt="BMW" class="car-bmw-logo" onclick="reLockCarPlay()" title="35 DDP 257">
+                <div class="car-plate-title">
+                    35 DDP 257
+                    <div class="m-stripes">
+                        <span class="m-stripe-1"></span>
+                        <span class="m-stripe-2"></span>
+                        <span class="m-stripe-3"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-status-pill">
+                <div class="car-status-dot"></div>
+                <span>SPOTIFY ARKA PLANDA KESİNTİSİZ ÇALIYOR</span>
+            </div>
+
+            <div class="car-actions-right">
+                <div class="car-clock" id="liveCarClock">12:00:00</div>
+                <button class="top-btn exit-btn" onclick="exitCarPlayDirectly()" title="Uygulamadan Çık">
+                    <span>🚪</span> Çıkış
+                </button>
+            </div>
+        </header>
+
+        <!-- 3-Wing Cockpit Grid -->
+        <main class="cockpit-grid">
+            
+            <!-- ============================================== -->
+            <!-- WING 1: SES & MİKSER AYARI (SOL - YUKARIDAN ALTA)-->
+            <!-- ============================================== -->
+            <section class="cockpit-wing">
+                <div class="wing-header">
+                    <div class="wing-title">
+                        <span>🎚️</span> SES & MİKSER AYARI
+                    </div>
+                    <span class="wing-badge" style="background:rgba(0,163,224,0.15); color:var(--neon-cyan); border-color:rgba(0,163,224,0.3);">M-AUDIO CHANNELS</span>
+                </div>
+
+                <div class="volume-channels-wrap">
+                    <!-- Kanal 1: MASTER SES (Üst) -->
+                    <div class="vol-channel-card ch-master">
+                        <div class="vol-ch-header">
+                            <div class="vol-ch-title-wrap">
+                                <span class="vol-ch-icon">🔊</span>
+                                <div>
+                                    <div class="vol-ch-title">MASTER SESİ</div>
+                                    <div class="vol-ch-sub">GENEL ÇIKIŞ GÜCÜ</div>
+                                </div>
+                            </div>
+                            <span class="vol-ch-val" id="valMaster">90%</span>
+                        </div>
+                        <div class="vol-slider-row">
+                            <input type="range" class="cockpit-range-large cyan" id="carMasterGain" min="0" max="1" step="0.01" value="0.9">
+                        </div>
+                        <div class="vol-presets-row">
+                            <button class="vol-preset-btn" onclick="setVolumePreset('master', 0)">MUTE</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('master', 0.5)">50%</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('master', 0.85)">85%</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('master', 1.0)">100%</button>
+                        </div>
+                    </div>
+
+                    <!-- Kanal 2: ACCELERATOR SESİ (Orta) -->
+                    <div class="vol-channel-card ch-accel">
+                        <div class="vol-ch-header">
+                            <div class="vol-ch-title-wrap">
+                                <span class="vol-ch-icon">⚡</span>
+                                <div>
+                                    <div class="vol-ch-title">ACCELERATOR SESİ</div>
+                                    <div class="vol-ch-sub">PARTİ GAZI & RISER FX</div>
+                                </div>
+                            </div>
+                            <span class="vol-ch-val" id="valScratch">200%</span>
+                        </div>
+                        <div class="vol-slider-row">
+                            <input type="range" class="cockpit-range-large green" id="carScratchGain" min="0" max="2.0" step="0.01" value="2.0">
+                        </div>
+                        <div class="vol-presets-row">
+                            <button class="vol-preset-btn" onclick="setVolumePreset('accel', 0)">MUTE</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('accel', 1.0)">100%</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('accel', 1.5)">150%</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('accel', 2.0)">200% 🔥</button>
+                        </div>
+                    </div>
+
+                    <!-- Kanal 3: HİT & FX SESİ (Alt) -->
+                    <div class="vol-channel-card ch-hit">
+                        <div class="vol-ch-header">
+                            <div class="vol-ch-title-wrap">
+                                <span class="vol-ch-icon">🔥</span>
+                                <div>
+                                    <div class="vol-ch-title">HİT & FX SESİ</div>
+                                    <div class="vol-ch-sub">VIP SOUNDBOARD (AIRHORN)</div>
+                                </div>
+                            </div>
+                            <span class="vol-ch-val" id="valHit">85%</span>
+                        </div>
+                        <div class="vol-slider-row">
+                            <input type="range" class="cockpit-range-large pink" id="carHitGain" min="0" max="1" step="0.01" value="0.85">
+                        </div>
+                        <div class="vol-presets-row">
+                            <button class="vol-preset-btn" onclick="setVolumePreset('hit', 0)">MUTE</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('hit', 0.5)">50%</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('hit', 0.85)">85%</button>
+                            <button class="vol-preset-btn" onclick="setVolumePreset('hit', 1.0)">100%</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- WING 2: CENTER HUD, SPOTIFY & ALT BUTONLAR    -->
+            <!-- ============================================== -->
+            <section class="cockpit-wing">
+                <div class="wing-header">
+                    <div class="wing-title">
+                        <span>📊</span> BMW DİJİTAL HUD & SPOTIFY
+                    </div>
+                    <span class="wing-badge" style="background:rgba(0,255,136,0.15); color:var(--neon-green); border-color:rgba(0,255,136,0.3);">CANLI OYNATICI</span>
+                </div>
+
+                <div class="center-hud-wrap">
+                    
+                    <!-- Tachometer & VU Meter -->
+                    <div class="tachometer-card">
+                        <div class="tacho-top">
+                            <div class="tacho-title">M-DYNAMIC TACHOMETER</div>
+                            <div class="bpm-display">
+                                <span style="font-size:10px; color:var(--text-secondary);">TEMPO</span>
+                                <span id="bpmNum">128.0</span> BPM
+                            </div>
+                        </div>
+                        <div class="led-meter-row" id="ledMeterRow">
+                            <!-- 20 Dynamic LED segments -->
+                        </div>
+                    </div>
+
+                    <!-- SPOTIFY LIVE NOW PLAYING CARD -->
+                    <div class="spot-now-playing-card">
+                        <div class="spot-card-top">
+                            <!-- Album Cover Image -->
+                            <div class="spot-cover-container" onclick="openSpotifyTrackModal()" title="Kapağa dokunarak şarkıyı değiştir">
+                                <img id="spotCoverImg" class="spot-cover-art" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&auto=format&fit=crop&q=80" alt="Albüm Kapağı">
+                                <div class="spot-cover-badge" id="spotLiveBadge">
+                                    <span class="spot-eq-bar b1"></span>
+                                    <span class="spot-eq-bar b2"></span>
+                                    <span class="spot-eq-bar b3"></span>
+                                </div>
+                            </div>
+
+                            <!-- Track Title & Artist -->
+                            <div class="spot-meta-col" onclick="openSpotifyTrackModal()" style="cursor:pointer;" title="Şarkıyı Değiştirmek İçin Dokunun">
+                                <div class="spot-badge-row" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                                    <span class="spot-brand-tag" id="spotLiveDeviceTag">● SPOTIFY NOW PLAYING</span>
+                                    <button class="spot-quick-change-btn" onclick="event.stopPropagation(); openSpotifyTrackModal()" title="Şarkıyı Değiştir">
+                                        <span>🔄 Değiştir</span>
+                                    </button>
+                                </div>
+                                <div class="spot-track-title" id="spotTrackTitle">Cyber Club Drive</div>
+                                <div class="spot-track-artist" id="spotTrackArtist">DJ Antigravity • BMW 35 DDP 257</div>
+                            </div>
+                        </div>
+
+                        <!-- Canlı Zaman Çubuğu -->
+                        <div class="spot-timeline-section">
+                            <div class="spot-time-display">
+                                <span class="spot-time-current" id="spotTimeCurrent">00:00</span>
+                                <span class="spot-status-label" id="spotPlayStatusLabel">● ÇALIYOR</span>
+                                <span class="spot-time-total" id="spotTimeTotal">03:45</span>
+                            </div>
+                            <div class="spot-progress-bar-bg" id="spotProgressTrack" onclick="seekSpotifyProgress(event)">
+                                <div class="spot-progress-bar-fill" id="spotProgressFill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Transport Controls -->
+                        <div class="spot-controls-row">
+                            <button class="spot-ctrl-btn" onclick="prevSpotifyTrack()" title="Önceki Şarkı">⏮️</button>
+                            <button class="spot-ctrl-btn play-pause-btn" id="spotPlayPauseBtn" onclick="toggleSpotifyPlay()" title="Oynat / Duraklat">⏸️</button>
+                            <button class="spot-ctrl-btn" onclick="nextSpotifyTrack()" title="Sonraki Şarkı">⏭️</button>
+                        </div>
+                    </div>
+
+                    <!-- ALT BÖLÜM: 3 VIP HİT BUTONU -->
+                    <div class="bottom-hits-deck">
+                        <div class="bottom-hits-header">
+                            <span class="bottom-hits-tag">🔥 VIP HİT BUTONLARI</span>
+                            <span class="bottom-hits-sub">ŞARKININ ÜSTÜNE BAS</span>
+                        </div>
+                        <div class="bottom-hits-grid">
+                            <button class="car-hit-pad pad-airhorn" onclick="playCarHit('airhorn', this)">
+                                <div class="hit-pad-icon">🚨</div>
+                                <div class="hit-pad-info">
+                                    <div class="hit-pad-title">AIRHORN</div>
+                                    <div class="hit-pad-sub">1.75s Patlama</div>
+                                </div>
+                            </button>
+
+                            <button class="car-hit-pad pad-djburak" onclick="playCarHit('djburak', this)">
+                                <div class="hit-pad-icon">👑</div>
+                                <div class="hit-pad-info">
+                                    <div class="hit-pad-title">DJ BURAK</div>
+                                    <div class="hit-pad-sub">djburak.mp3</div>
+                                </div>
+                            </button>
+
+                            <button class="car-hit-pad pad-giveme" onclick="playCarHit('giveme', this)">
+                                <div class="hit-pad-icon">🔥</div>
+                                <div class="hit-pad-info">
+                                    <div class="hit-pad-title">GIVE ME TO MUSIC</div>
+                                    <div class="hit-pad-sub">giveme.mp3</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ============================================== -->
+            <!-- WING 3: BMW M PARTY ACCELERATOR (SAĞ PANEL)    -->
+            <!-- ============================================== -->
+            <section class="cockpit-wing">
+                <div class="wing-header">
+                    <div class="wing-title">
+                        <span>🚀</span> BMW PARTY ACCELERATOR
+                    </div>
+                    <span class="wing-badge" style="background:rgba(0,240,255,0.15); color:var(--neon-cyan); border-color:rgba(0,240,255,0.3);">M-ENERGY THROTTLE</span>
+                </div>
+
+                <div class="accel-deck-wrap">
+                    <!-- Top Telemetry Display -->
+                    <div class="accel-telemetry-card">
+                        <div class="accel-hud-row">
+                            <div class="accel-boost-text">
+                                <span class="accel-sub-tag">BOOST LEVEL</span>
+                                <span class="accel-pct-val" id="carAccelPct">0%</span>
+                            </div>
+                            <div class="accel-rpm-box">
+                                <span class="accel-rpm-num" id="carAccelRpm">1,200</span>
+                                <span class="accel-rpm-unit">RPM</span>
+                            </div>
+                        </div>
+
+                        <!-- M-Power Segmented Energy Bar -->
+                        <div class="accel-bar-track">
+                            <div class="accel-bar-fill" id="carAccelBarFill"></div>
+                        </div>
+
+                        <div class="accel-status-badge" id="carAccelStatus">● IDLE / CRUISING</div>
+                    </div>
+
+                    <!-- Vertical Accelerator Pedal / Lever Zone -->
+                    <div class="accel-pedal-container" id="carPedalArea">
+                        <!-- Background Guide Stages -->
+                        <div class="pedal-stages-col">
+                            <div class="pedal-stage-marker s100" onclick="setCarAccel(1.0)"><span>100%</span> <span>BOMBA PATLAMA! 💣🔥</span></div>
+                            <div class="pedal-stage-marker s75" onclick="setCarAccel(0.75)"><span>75%</span> <span>ACCEL 3 ⚡</span></div>
+                            <div class="pedal-stage-marker s50" onclick="setCarAccel(0.50)"><span>50%</span> <span>ACCEL 2 💥</span></div>
+                            <div class="pedal-stage-marker s25" onclick="setCarAccel(0.25)"><span>25%</span> <span>ACCEL 1 🏎️</span></div>
+                            <div class="pedal-stage-marker s0" onclick="setCarAccel(0.0)"><span>0%</span> <span>OFF / IDLE 🛋️</span></div>
+                        </div>
+
+                        <!-- Heavy M-Performance Gas Pedal / Throttle Handle -->
+                        <div class="pedal-track" id="carPedalTrack">
+                            <div class="pedal-lever" id="carPedalLever">
+                                <div class="pedal-metal-plate">
+                                    <div class="pedal-grip-stripes">
+                                        <span class="m-stripe m-blue"></span>
+                                        <span class="m-stripe m-darkblue"></span>
+                                        <span class="m-stripe m-red"></span>
+                                    </div>
+                                    <div class="pedal-center-logo">
+                                        <img src="bmw.png?v=35257" alt="BMW" class="pedal-bmw-icon">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Driving Action Buttons -->
+                    <div class="accel-actions-row">
+                        <button class="accel-action-btn drop-btn" onclick="triggerPartyInstantDrop()">
+                            <span style="font-size:14px;">💥</span>
+                            <span>MAX BOMBA</span>
+                        </button>
+                        <button class="accel-action-btn riser-btn" id="carBtnAutoRiser" onclick="toggleAutoPartyRiser()">
+                            <span style="font-size:14px;">📈</span>
+                            <span>AUTO RISER</span>
+                        </button>
+                        <button class="accel-action-btn cut-btn" onclick="killPartyAccelerator()">
+                            <span style="font-size:14px;">🛑</span>
+                            <span>CUT / BRAKE</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- JAVASCRIPT: WEB AUDIO & CARPLAY LOGIC                -->
+    <!-- ==================================================== -->
+    <script>
+        // 1. LIGHTNING FAST PIN GATE (35257) - ZERO DELAY
+        const CAR_PIN = "35257";
+        let enteredCarPin = "";
+
+        function tapCarKey(num, e) {
+            if (e) e.preventDefault();
+            if (enteredCarPin.length < 5) {
+                enteredCarPin += num;
+                renderCarPinDots();
+                if (enteredCarPin.length === 5) {
+                    const msg = document.getElementById('carPinMsg');
+                    if (enteredCarPin === CAR_PIN) {
+                        msg.innerText = "✓ Doğrulandı!";
+                        msg.style.color = "var(--neon-green)";
+                        quickBypassPin();
+                    } else {
+                        msg.innerText = "✕ Hatalı Şifre! (Doğru: 35257)";
+                        msg.style.color = "var(--bmw-red)";
+                        setTimeout(() => {
+                            enteredCarPin = "";
+                            renderCarPinDots();
+                            msg.innerText = "5 Haneli Şifrenizi Girin";
+                            msg.style.color = "var(--text-secondary)";
+                        }, 400);
+                    }
+                }
+            }
+        }
+
+        function backCarPin(e) {
+            if (e) e.preventDefault();
+            if (enteredCarPin.length > 0) {
+                enteredCarPin = enteredCarPin.slice(0, -1);
+                renderCarPinDots();
+            }
+        }
+
+        function clearCarPin(e) {
+            if (e) e.preventDefault();
+            enteredCarPin = "";
+            renderCarPinDots();
+            const msg = document.getElementById('carPinMsg');
+            if (msg) {
+                msg.innerText = "5 Haneli Şifrenizi Girin";
+                msg.style.color = "var(--text-secondary)";
+            }
+        }
+
+        function renderCarPinDots() {
+            for (let i = 0; i < 5; i++) {
+                const dot = document.getElementById(`cp${i}`);
+                if (dot) {
+                    if (i < enteredCarPin.length) dot.classList.add('filled');
+                    else dot.classList.remove('filled');
+                }
+            }
+        }
+
+        function quickBypassPin() {
+            initCarAudio();
+            const overlay = document.getElementById('carPinGate');
+            if (overlay) {
+                overlay.classList.add('unlocked');
+            }
+        }
+
+        function reLockCarPlay() {
+            enteredCarPin = "";
+            renderCarPinDots();
+            const overlay = document.getElementById('carPinGate');
+            if (overlay) overlay.classList.remove('unlocked');
+        }
+
+        
+        // DIRECT CARPLAY APP EXIT
+        function exitCarPlayDirectly() {
+            stopClupBeatEngine();
+            stopScratchSound();
+            if (audioCtx) {
+                try { audioCtx.close(); } catch(e) {}
+            }
+            window.close();
+            setTimeout(() => {
+                window.location.href = "about:blank";
+            }, 60);
+        }
+
+        // 2. LIVE CLOCK
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const clockEl = document.getElementById('liveCarClock');
+            if (clockEl) clockEl.innerText = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 3. SPOTIFY LIVE NOW PLAYING SYSTEM & SYNCED PROGRESS TIMER
+        const PRESET_TRACKS = [
+            {
+                title: "Cyber Club Drive",
+                artist: "DJ Antigravity • BMW 35 DDP 257",
+                durationSec: 225, // 03:45
+                cover: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&auto=format&fit=crop&q=80",
+                bpm: 128,
+                uri: "spotify:track:4cOdK2wGLETKBW3PvgPWqT"
+            },
+            {
+                title: "Pişman Değilim",
+                artist: "Semicenk & Doğu Swag",
+                durationSec: 174, // 02:54
+                cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80",
+                bpm: 124,
+                uri: "spotify:track:2dpaq3Xh4hT778W0bFh9Vd"
+            },
+            {
+                title: "Baba",
+                artist: "Lvbel C5",
+                durationSec: 158, // 02:38
+                cover: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&auto=format&fit=crop&q=80",
+                bpm: 130,
+                uri: "spotify:track:0vSwZJ2wQz"
+            },
+            {
+                title: "10MG",
+                artist: "Motive",
+                durationSec: 182, // 03:02
+                cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&auto=format&fit=crop&q=80",
+                bpm: 126,
+                uri: "spotify:track:10mgMotive"
+            },
+            {
+                title: "Affetmem",
+                artist: "BLOK3",
+                durationSec: 165, // 02:45
+                cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&auto=format&fit=crop&q=80",
+                bpm: 125,
+                uri: "spotify:track:blok3affetmem"
+            },
+            {
+                title: "Losing It",
+                artist: "FISHER • Tech House VIP",
+                durationSec: 248, // 04:08
+                cover: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300&auto=format&fit=crop&q=80",
+                bpm: 125,
+                uri: "spotify:track:6ho0Gyr4TKK2IsikzG0uUN"
+            },
+            {
+                title: "One More Time",
+                artist: "Daft Punk • Club Classic",
+                durationSec: 320, // 05:20
+                cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300&auto=format&fit=crop&q=80",
+                bpm: 128,
+                uri: "spotify:track:0DiWol3AO6WpXZgp0gGlNW"
+            },
+            {
+                title: "Blinding Lights",
+                artist: "The Weeknd • After Hours",
+                durationSec: 200, // 03:20
+                cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80",
+                bpm: 171,
+                uri: "spotify:track:0VjIjW4GlUZAMYd2vXMi3b"
+            }
+        ];
+
+        let currentTrackIdx = 0;
+        let currentElapsedSec = 0;
+        let currentTotalSec = 225;
+        let isSpotifyPlaying = true;
+        let spotifyProgressTimer = null;
+        let lastServerTrackTitle = "";
+        let searchDebounceTimer = null;
+        let spotifyApiToken = localStorage.getItem('spotify_user_token') || '';
+        let spotifyPollInterval = null;
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function loadTrack(track, broadcast = true) {
+            if (!track) return;
+            const titleEl = document.getElementById('spotTrackTitle');
+            const artistEl = document.getElementById('spotTrackArtist');
+            const coverEl = document.getElementById('spotCoverImg');
+            const bpmEl = document.getElementById('bpmNum');
+
+            if (titleEl) titleEl.innerText = track.title || 'Spotify Şarkısı';
+            if (artistEl) artistEl.innerText = track.artist || 'Sanatçı';
+            if (coverEl && track.cover) coverEl.src = track.cover;
+            if (bpmEl && track.bpm) bpmEl.innerText = Number(track.bpm).toFixed(1);
+
+            currentTotalSec = track.durationSec || 200;
+            currentElapsedSec = (typeof track.elapsedSec === 'number') ? track.elapsedSec : 0;
+            const totalEl = document.getElementById('spotTimeTotal');
+            const curEl = document.getElementById('spotTimeCurrent');
+            if (totalEl) totalEl.innerText = formatTime(currentTotalSec);
+            if (curEl) curEl.innerText = formatTime(currentElapsedSec);
+            updateProgressUI();
+
+            if (isSpotifyPlaying) {
+                startSpotifyTimer();
+            }
+
+            if (broadcast) {
+                broadcastCurrentTrackToServer(track);
+            }
+        }
+
+        function broadcastCurrentTrackToServer(track) {
+            try {
+                fetch('/api/spotify/current', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: track.title,
+                        artist: track.artist,
+                        cover: track.cover,
+                        durationSec: track.durationSec,
+                        elapsedSec: currentElapsedSec,
+                        bpm: track.bpm || 128,
+                        isPlaying: isSpotifyPlaying,
+                        source: track.source || 'user'
+                    })
+                }).catch(() => {});
+            } catch(e) {}
+        }
+
+        function startSpotifyTimer() {
+            if (spotifyProgressTimer) clearInterval(spotifyProgressTimer);
+            spotifyProgressTimer = setInterval(() => {
+                if (isSpotifyPlaying) {
+                    currentElapsedSec++;
+                    // Şarkı bitince otomatik bir sonrakine geç!
+                    if (currentElapsedSec >= currentTotalSec) {
+                        nextSpotifyTrack();
+                        return;
+                    }
+                    updateProgressUI();
+                }
+            }, 1000);
+        }
+
+        function updateProgressUI() {
+            const curEl = document.getElementById('spotTimeCurrent');
+            const fillEl = document.getElementById('spotProgressFill');
+            if (curEl) curEl.innerText = formatTime(currentElapsedSec);
+            if (fillEl && currentTotalSec > 0) {
+                const pct = Math.min(100, (currentElapsedSec / currentTotalSec) * 100);
+                fillEl.style.width = `${pct}%`;
+            }
+        }
+
+        function toggleSpotifyPlay() {
+            isSpotifyPlaying = !isSpotifyPlaying;
+            const btn = document.getElementById('spotPlayPauseBtn');
+            const lbl = document.getElementById('spotPlayStatusLabel');
+            const eqBadge = document.getElementById('spotLiveBadge');
+
+            if (isSpotifyPlaying) {
+                if (btn) btn.innerText = "⏸️";
+                if (lbl) {
+                    lbl.innerText = "● ÇALIYOR";
+                    lbl.style.color = "var(--neon-green)";
+                }
+                if (eqBadge) eqBadge.style.display = "flex";
+                startSpotifyTimer();
+            } else {
+                if (btn) btn.innerText = "▶️";
+                if (lbl) {
+                    lbl.innerText = "❚❚ DURAKLATILDI";
+                    lbl.style.color = "var(--text-muted)";
+                }
+                if (eqBadge) eqBadge.style.display = "none";
+            }
+            broadcastCurrentTrackToServer({
+                title: document.getElementById('spotTrackTitle').innerText,
+                artist: document.getElementById('spotTrackArtist').innerText,
+                cover: document.getElementById('spotCoverImg').src,
+                durationSec: currentTotalSec,
+                elapsedSec: currentElapsedSec,
+                isPlaying: isSpotifyPlaying
+            });
+        }
+
+        function seekSpotifyProgress(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const pct = Math.max(0, Math.min(1, clickX / rect.width));
+            currentElapsedSec = Math.floor(pct * currentTotalSec);
+            updateProgressUI();
+        }
+
+        function nextSpotifyTrack() {
+            currentTrackIdx = (currentTrackIdx + 1) % PRESET_TRACKS.length;
+            loadTrack(PRESET_TRACKS[currentTrackIdx], true);
+        }
+
+        function prevSpotifyTrack() {
+            currentTrackIdx = (currentTrackIdx - 1 + PRESET_TRACKS.length) % PRESET_TRACKS.length;
+            loadTrack(PRESET_TRACKS[currentTrackIdx], true);
+        }
+
+        function openCarPlaySpotify() {
+            const tr = PRESET_TRACKS[currentTrackIdx];
+            if (tr && tr.uri) {
+                window.location.href = tr.uri;
+            } else {
+                window.location.href = "spotify:";
+            }
+        }
+
+        // Modal Controls & Tabs
+        function openSpotifyTrackModal() {
+            const modal = document.getElementById('spotTrackModal');
+            if (modal) modal.classList.add('active');
+            renderPresetList();
+            checkStoredTokenUI();
+        }
+
+        function closeSpotifyTrackModal() {
+            const modal = document.getElementById('spotTrackModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function switchSpotModalTab(tabName) {
+            ['search', 'presets', 'connect', 'link'].forEach(t => {
+                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const content = document.getElementById(`spotTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (btn) btn.classList.toggle('active', t === tabName);
+                if (content) content.style.display = (t === tabName) ? 'block' : 'none';
+            });
+            if (tabName === 'presets') renderPresetList();
+            if (tabName === 'connect') checkStoredTokenUI();
+        }
+
+        function handleLiveSongSearch(val) {
+            const list = document.getElementById('liveSearchResultsList');
+            if (!list) return;
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+            if (!val || val.trim().length < 2) {
+                list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:12px;">Aramak istediğiniz şarkıyı veya sanatçıyı yazın...</div>';
+                return;
+            }
+
+            searchDebounceTimer = setTimeout(async () => {
+                list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--neon-green); font-size:12px;">Aranıyor...</div>';
+                try {
+                    const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(val.trim())}`);
+                    const data = await res.json();
+                    if (data && data.tracks && data.tracks.length > 0) {
+                        list.innerHTML = "";
+                        data.tracks.forEach(track => {
+                            const item = document.createElement('div');
+                            item.className = 'preset-track-item';
+                            item.innerHTML = `
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <img src="${track.cover}" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
+                                    <div class="preset-info">
+                                        <h5>${track.title}</h5>
+                                        <p>${track.artist}</p>
+                                    </div>
+                                </div>
+                                <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--neon-green); font-weight:800;">
+                                    ${formatTime(track.durationSec)}
+                                </div>
+                            `;
+                            item.onclick = () => {
+                                const newTrack = {
+                                    title: track.title,
+                                    artist: track.artist,
+                                    durationSec: track.durationSec,
+                                    cover: track.cover,
+                                    bpm: track.bpm || 126,
+                                    source: 'search'
+                                };
+                                PRESET_TRACKS.unshift(newTrack);
+                                currentTrackIdx = 0;
+                                loadTrack(newTrack, true);
+                                closeSpotifyTrackModal();
+                            };
+                            list.appendChild(item);
+                        });
+                    } else {
+                        list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:12px;">Sonuç bulunamadı. Başka bir arama deneyin.</div>';
+                    }
+                } catch(e) {
+                    list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--bmw-red); font-size:12px;">Arama hatası oluştu.</div>';
+                }
+            }, 300);
+        }
+
+        function checkStoredTokenUI() {
+            const statusEl = document.getElementById('spotTokenStatus');
+            const tokenInput = document.getElementById('spotifyTokenInput');
+            if (spotifyApiToken) {
+                if (statusEl) statusEl.innerText = "✓ Canlı Spotify Hesabı Bağlı! iPhone'da çalan şarkı anında ekrana gelir.";
+                if (tokenInput && !tokenInput.value) tokenInput.value = "●●●●●●●●●●●●●●●●";
+            } else {
+                if (statusEl) statusEl.innerText = "";
+            }
+        }
+
+        function saveSpotifyLiveToken() {
+            const tokenInput = document.getElementById('spotifyTokenInput');
+            const val = (tokenInput ? tokenInput.value : '').trim();
+            if (!val || val.includes('●')) return;
+            spotifyApiToken = val;
+            localStorage.setItem('spotify_user_token', val);
+            startSpotifyLivePolling();
+            checkStoredTokenUI();
+            alert("Spotify bağlantısı kaydedildi! Şarkınız otomatik olarak ekrana yansıtılacak.");
+        }
+
+        function startSpotifyLivePolling() {
+            if (!spotifyApiToken) return;
+            if (spotifyPollInterval) clearInterval(spotifyPollInterval);
+
+            async function checkSpotifyNowPlaying() {
+                try {
+                    const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                        headers: { 'Authorization': `Bearer ${spotifyApiToken}` }
+                    });
+                    if (res.status === 200) {
+                        const data = await res.json();
+                        if (data && data.item) {
+                            const track = {
+                                title: data.item.name,
+                                artist: data.item.artists ? data.item.artists.map(a => a.name).join(', ') : 'Spotify Sanatçısı',
+                                cover: (data.item.album && data.item.album.images && data.item.album.images[0]) ? data.item.album.images[0].url : '',
+                                durationSec: Math.round(data.item.duration_ms / 1000),
+                                elapsedSec: Math.round(data.progress_ms / 1000),
+                                isPlaying: data.is_playing,
+                                bpm: 128,
+                                source: 'spotify-live'
+                            };
+                            if (track.title !== lastServerTrackTitle) {
+                                lastServerTrackTitle = track.title;
+                                loadTrack(track, true);
+                                const tagEl = document.getElementById('spotLiveDeviceTag');
+                                if (tagEl) tagEl.innerText = "● CANLI SPOTIFY (IPHONE)";
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            checkSpotifyNowPlaying();
+            spotifyPollInterval = setInterval(checkSpotifyNowPlaying, 2500);
+        }
+
+        // Live Server State Poller (Auto-updates CarPlay when phone or someone else changes track)
+        function pollServerCurrentTrack() {
+            fetch('/api/spotify/current')
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success && res.state) {
+                        const s = res.state;
+                        if (s.title && s.title !== lastServerTrackTitle) {
+                            lastServerTrackTitle = s.title;
+                            const newTr = {
+                                title: s.title,
+                                artist: s.artist,
+                                cover: s.cover,
+                                durationSec: s.durationSec,
+                                elapsedSec: s.elapsedSec,
+                                bpm: s.bpm || 128,
+                                source: s.source
+                            };
+                            loadTrack(newTr, false);
+                            const tagEl = document.getElementById('spotLiveDeviceTag');
+                            if (tagEl) {
+                                tagEl.innerText = s.source === 'spotify-live' ? "● CANLI SPOTIFY (IPHONE)" : "● SPOTIFY NOW PLAYING";
+                            }
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+        setInterval(pollServerCurrentTrack, 1500);
+
+        function renderPresetList() {
+            const list = document.getElementById('presetTracksList');
+            if (!list) return;
+            list.innerHTML = "";
+            PRESET_TRACKS.forEach((track, idx) => {
+                const item = document.createElement('div');
+                item.className = 'preset-track-item';
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="${track.cover}" style="width:34px; height:34px; border-radius:6px; object-fit:cover;">
+                        <div class="preset-info">
+                            <h5>${track.title}</h5>
+                            <p>${track.artist}</p>
+                        </div>
+                    </div>
+                    <div style="font-family:'JetBrains Mono'; font-size:11px; color:var(--neon-green); font-weight:800;">
+                        ${formatTime(track.durationSec)}
+                    </div>
+                `;
+                item.onclick = () => {
+                    currentTrackIdx = idx;
+                    loadTrack(track, true);
+                    closeSpotifyTrackModal();
+                };
+                list.appendChild(item);
+            });
+        }
+
+        async function importSpotifyLink() {
+            const input = document.getElementById('spotifyLinkInput');
+            const url = input.value.trim();
+            if (!url) return;
+
+            const btn = document.querySelector('.spot-fetch-btn');
+            btn.innerText = "YÜKLENİYOR...";
+            try {
+                const res = await fetch(`/api/spotify-resolve?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
+                if (data.success && data.tracks && data.tracks.length > 0) {
+                    const first = data.tracks[0];
+                    const newTrack = {
+                        title: first.title || data.name || "Spotify Şarkısı",
+                        artist: first.artist || data.subtitle || "Spotify Sanatçısı",
+                        durationSec: Math.floor((first.durationMs || 180000) / 1000),
+                        cover: data.coverArt || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&auto=format&fit=crop&q=80",
+                        bpm: first.bpm || 128,
+                        uri: first.uri || "spotify:",
+                        source: 'import'
+                    };
+                    PRESET_TRACKS.unshift(newTrack);
+                    currentTrackIdx = 0;
+                    loadTrack(newTrack, true);
+                    renderPresetList();
+                    closeSpotifyTrackModal();
+                    input.value = "";
+                } else {
+                    alert("Şarkı bilgisi alındı, liste güncellendi.");
+                }
+            } catch(e) {
+                console.error("Spotify link yükleme hatası:", e);
+            } finally {
+                btn.innerText = "YÜKLE";
+            }
+        }
+
+        // Initialize preset list and default track
+        renderPresetList();
+        // Load initial state from server if available
+        fetch('/api/spotify/current')
+            .then(r => r.json())
+            .then(res => {
+                if (res && res.success && res.state && res.state.title) {
+                    lastServerTrackTitle = res.state.title;
+                    loadTrack(res.state, false);
+                } else {
+                    loadTrack(PRESET_TRACKS[0], false);
+                }
+            })
+            .catch(() => {
+                loadTrack(PRESET_TRACKS[0], false);
+            });
+        if (spotifyApiToken) {
+            startSpotifyLivePolling();
+        }
+
+        // 4. BULLETPROOF AMBIENT WEB AUDIO ENGINE (Never pauses Spotify!)
+        let audioCtx = null;
+        let masterGainNode = null;
+        let scratchGainNode = null;
+        let hitGainNode = null;
+        let lgBoomBuffer = null;
+        let bombAudioBuffer = null;
+
+        const vipSounds = {
+            airhorn: { name: 'AIRHORN', url: 'airhorn.mp3?v=35257', buffer: null, arrayBuf: null, offset: 1.75 },
+            djburak: { name: 'DJ BURAK', url: 'djburak.mp3?v=35257', buffer: null, arrayBuf: null, offset: 0 },
+            giveme:  { name: 'GIVE ME TO MUSIC', url: 'givemetomusic.mp3?v=35257', buffer: null, arrayBuf: null, offset: 0 }
+        };
+
+        function preloadAllSounds() {
+            Object.keys(vipSounds).forEach(key => {
+                const s = vipSounds[key];
+                fetch(s.url)
+                    .then(r => r.arrayBuffer())
+                    .then(ab => {
+                        s.arrayBuf = ab;
+                        tryDecodeSound(key);
+                    })
+                    .catch(e => console.warn('Sound fetch err:', key, e));
+            });
+        }
+
+        function tryDecodeSound(key) {
+            const s = vipSounds[key];
+            if (!s || s.buffer || !s.arrayBuf || !audioCtx) return;
+            try {
+                audioCtx.decodeAudioData(s.arrayBuf.slice(0), (decoded) => {
+                    s.buffer = decoded;
+                    console.log('Decoded sound successfully:', key);
+                }, (err) => console.warn('Decode err:', key, err));
+            } catch(e) {}
+        }
+
+        function decodeAllPendingSounds() {
+            if (!audioCtx) return;
+            Object.keys(vipSounds).forEach(tryDecodeSound);
+        }
+
+        preloadAllSounds();
+
+        // Preload LG XBOOM Climax Boom sound
+        fetch('bomb_explosion.mp3?v=35257')
+            .then(r => r.arrayBuffer())
+            .then(ab => {
+                if (audioCtx) {
+                    audioCtx.decodeAudioData(ab, decoded => {
+                        bombAudioBuffer = decoded;
+                        console.log('Bomb explosion buffer ready!');
+                    });
+                } else {
+                    window._bombArrayBuf = ab;
+                }
+            })
+            .catch(e => console.warn('Bomb fetch err:', e));
+
+        fetch('lg_boom.wav?v=35257')
+            .then(r => r.arrayBuffer())
+            .then(ab => {
+                if (audioCtx) {
+                    audioCtx.decodeAudioData(ab, decoded => {
+                        lgBoomBuffer = decoded;
+                        console.log('LG XBOOM Boom buffer ready!');
+                    });
+                } else {
+                    window._lgBoomArrayBuf = ab;
+                }
+            })
+            .catch(e => console.warn('LG Boom fetch err:', e));
+
+        function initCarAudio() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+                
+                masterGainNode = audioCtx.createGain();
+                masterGainNode.gain.setValueAtTime(0.9, audioCtx.currentTime);
+
+                scratchGainNode = audioCtx.createGain();
+                scratchGainNode.gain.setValueAtTime(2.0, audioCtx.currentTime);
+
+                hitGainNode = audioCtx.createGain();
+                hitGainNode.gain.setValueAtTime(0.85, audioCtx.currentTime);
+
+                scratchGainNode.connect(masterGainNode);
+                hitGainNode.connect(masterGainNode);
+                masterGainNode.connect(audioCtx.destination);
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            decodeAllPendingSounds();
+            if (!bombAudioBuffer && window._bombArrayBuf && audioCtx) {
+                try {
+                    audioCtx.decodeAudioData(window._bombArrayBuf.slice(0), decoded => {
+                        bombAudioBuffer = decoded;
+                    });
+                } catch(e) {}
+            }
+            if (!lgBoomBuffer && window._lgBoomArrayBuf && audioCtx) {
+                try {
+                    audioCtx.decodeAudioData(window._lgBoomArrayBuf.slice(0), decoded => {
+                        lgBoomBuffer = decoded;
+                    });
+                } catch(e) {}
+            }
+        }
+
+        
+        function setVolumePreset(channel, val) {
+            initCarAudio();
+            if (channel === 'master') {
+                const slider = document.getElementById('carMasterGain');
+                if (slider) slider.value = val;
+                if (masterGainNode) masterGainNode.gain.setValueAtTime(val, audioCtx.currentTime);
+                const txt = document.getElementById('valMaster');
+                if (txt) txt.innerText = Math.round(val * 100) + '%';
+            } else if (channel === 'accel') {
+                const slider = document.getElementById('carScratchGain');
+                if (slider) slider.value = val;
+                if (scratchGainNode) scratchGainNode.gain.setValueAtTime(val, audioCtx.currentTime);
+                const txt = document.getElementById('valScratch');
+                if (txt) txt.innerText = Math.round(val * 100) + '%';
+            } else if (channel === 'hit') {
+                const slider = document.getElementById('carHitGain');
+                if (slider) slider.value = val;
+                if (hitGainNode) hitGainNode.gain.setValueAtTime(val, audioCtx.currentTime);
+                const txt = document.getElementById('valHit');
+                if (txt) txt.innerText = Math.round(val * 100) + '%';
+            }
+        }
+
+        // Slider listeners
+        const masterSlider = document.getElementById('carMasterGain');
+        const scratchSlider = document.getElementById('carScratchGain');
+        const hitSlider = document.getElementById('carHitGain');
+
+        if (masterSlider) {
+            masterSlider.addEventListener('input', (e) => {
+                initCarAudio();
+                const val = parseFloat(e.target.value);
+                if (masterGainNode) masterGainNode.gain.setValueAtTime(val, audioCtx.currentTime);
+                document.getElementById('valMaster').innerText = Math.round(val * 100) + '%';
+            });
+        }
+
+        if (scratchSlider) {
+            scratchSlider.addEventListener('input', (e) => {
+                initCarAudio();
+                const val = parseFloat(e.target.value);
+                if (scratchGainNode) scratchGainNode.gain.setValueAtTime(val, audioCtx.currentTime);
+                document.getElementById('valScratch').innerText = Math.round(val * 100) + '%';
+            });
+        }
+
+        if (hitSlider) {
+            hitSlider.addEventListener('input', (e) => {
+                initCarAudio();
+                const val = parseFloat(e.target.value);
+                if (hitGainNode) hitGainNode.gain.setValueAtTime(val, audioCtx.currentTime);
+                document.getElementById('valHit').innerText = Math.round(val * 100) + '%';
+            });
+        }
+
+        // 5. LG XBOOM RNC9 PARTY ACCELERATOR ENGINE
+        let currentAccel = 0.0;
+        let isPedalDragging = false;
+        let autoRiserInterval = null;
+        let accelSoundOsc = null;
+        let accelFilterNode = null;
+        let accelGainNode = null;
+        let accelNoiseNode = null;
+        let accelNoiseGain = null;
+        let snareRollTimer = null;
+        let hasExplodedAt100 = false;
+
+        function initAccelAudioNodes() {
+            if (!audioCtx) initCarAudio();
+            if (accelGainNode) return;
+
+            accelGainNode = audioCtx.createGain();
+            accelGainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+
+            accelFilterNode = audioCtx.createBiquadFilter();
+            accelFilterNode.type = 'bandpass';
+            accelFilterNode.frequency.setValueAtTime(140, audioCtx.currentTime);
+            accelFilterNode.Q.setValueAtTime(3.0, audioCtx.currentTime);
+
+            accelFilterNode.connect(accelGainNode);
+            accelGainNode.connect(scratchGainNode || masterGainNode);
+
+            // Primary harmonic oscillator (Sawtooth)
+            accelSoundOsc = audioCtx.createOscillator();
+            accelSoundOsc.type = 'sawtooth';
+            accelSoundOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
+            accelSoundOsc.connect(accelFilterNode);
+            try { accelSoundOsc.start(); } catch(e) {}
+
+            // Secondary White Noise Jet/Turbine Riser (Authentic LG XBOOM signature)
+            try {
+                const bufferSize = audioCtx.sampleRate * 2;
+                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                const whiteNoise = audioCtx.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+                whiteNoise.loop = true;
+
+                const noiseFilter = audioCtx.createBiquadFilter();
+                noiseFilter.type = 'bandpass';
+                noiseFilter.frequency.setValueAtTime(400, audioCtx.currentTime);
+                noiseFilter.Q.setValueAtTime(2.5, audioCtx.currentTime);
+
+                accelNoiseGain = audioCtx.createGain();
+                accelNoiseGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+
+                whiteNoise.connect(noiseFilter);
+                noiseFilter.connect(accelNoiseGain);
+                accelNoiseGain.connect(scratchGainNode || masterGainNode);
+                whiteNoise.start();
+
+                accelNoiseNode = noiseFilter;
+            } catch(e) {
+                console.warn('Noise generator err:', e);
+            }
+        }
+
+        function setCarAccel(level) {
+            initCarAudio();
+            initAccelAudioNodes();
+
+            currentAccel = Math.max(0, Math.min(1.0, level));
+            updateAccelUI();
+
+            // %99 VE ÜZERİNDE OTOMATİK PATLAMA (SADECE BOMBA PATLAMASI SESİ, DİĞER SESLER KESİLİR)
+            if (currentAccel >= 0.99) {
+                stopAccelRiserSound();
+                if (!hasExplodedAt100) {
+                    hasExplodedAt100 = true;
+                    triggerPartyInstantDrop();
+                }
+                return;
+            } else if (currentAccel < 0.85) {
+                hasExplodedAt100 = false;
+            }
+
+            updateAccelAudio();
+        }
+
+        function updateAccelUI() {
+            const pct = Math.round(currentAccel * 100);
+            const rpm = Math.round(1200 + (currentAccel * 7300));
+
+            const pctEl = document.getElementById('carAccelPct');
+            const rpmEl = document.getElementById('carAccelRpm');
+            const fillEl = document.getElementById('carAccelBarFill');
+            const statusEl = document.getElementById('carAccelStatus');
+            const leverEl = document.getElementById('carPedalLever');
+            const trackEl = document.getElementById('carPedalTrack');
+
+            if (pctEl) pctEl.innerText = `${pct}%`;
+            if (rpmEl) rpmEl.innerText = rpm.toLocaleString();
+            if (fillEl) fillEl.style.width = `${pct}%`;
+
+            if (leverEl && trackEl) {
+                const maxTravel = trackEl.clientHeight - leverEl.clientHeight - 12;
+                const bottomPx = 6 + (currentAccel * Math.max(10, maxTravel));
+                leverEl.style.bottom = `${bottomPx}px`;
+            }
+
+            if (statusEl) {
+                statusEl.className = 'accel-status-badge';
+                if (currentAccel >= 0.95) {
+                    statusEl.innerText = "💣💣 KABOOM! BOMBA PATLADI! 💣💣";
+                    statusEl.classList.add('redline');
+                } else if (currentAccel >= 0.75) {
+                    statusEl.innerText = "⚡ CLIMAX BUILD-UP: DROP IS NEAR!";
+                    statusEl.classList.add('boosted');
+                } else if (currentAccel >= 0.45) {
+                    statusEl.innerText = "🔥 ACCEL 2: HYPER SPEED BUILD";
+                    statusEl.classList.add('boosted');
+                } else if (currentAccel >= 0.15) {
+                    statusEl.innerText = "⚡ ACCEL 1: LG XBOOM GROOVE";
+                    statusEl.classList.add('boosted');
+                } else {
+                    statusEl.innerText = "● IDLE / OFF";
+                }
+            }
+
+            if (typeof bumpMeter === 'function' && currentAccel > 0.05) {
+                bumpMeter();
+            }
+        }
+
+        function stopAccelRiserSound() {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            if (accelGainNode) {
+                accelGainNode.gain.cancelScheduledValues(t);
+                accelGainNode.gain.setValueAtTime(0.0, t);
+            }
+            if (accelNoiseGain) {
+                accelNoiseGain.gain.cancelScheduledValues(t);
+                accelNoiseGain.gain.setValueAtTime(0.0, t);
+            }
+            stopSnareRoll();
+        }
+
+        function updateAccelAudio() {
+            if (!audioCtx || !accelGainNode) return;
+            const t = audioCtx.currentTime;
+
+            if (currentAccel <= 0.03 || currentAccel >= 0.99) {
+                stopAccelRiserSound();
+                return;
+            }
+
+            // LG XBOOM Progressive Riser Parameters
+            // TAM KALIN SES MOTORU (55Hz -> 240Hz Derin Bas & V8 Kükreme)
+            const targetFreq = 55 + (Math.pow(currentAccel, 1.4) * 185);
+            const targetFilter = 140 + (Math.pow(currentAccel, 2.0) * 480);
+            const targetVol = (0.08 + (currentAccel * 0.52)) * 2.0;
+
+            accelSoundOsc.frequency.setTargetAtTime(targetFreq, t, 0.03);
+            accelFilterNode.frequency.setTargetAtTime(targetFilter, t, 0.03);
+            accelGainNode.gain.setTargetAtTime(targetVol, t, 0.03);
+
+            // Noise jet turbine sweep
+            if (accelNoiseNode && accelNoiseGain) {
+                // Derin Egzoz & Türbin Bas Uğultusu (120Hz -> 420Hz)
+                const noiseFreq = 120 + (Math.pow(currentAccel, 1.6) * 320);
+                const noiseVol = Math.pow(currentAccel, 1.4) * 0.40;
+                accelNoiseNode.frequency.setTargetAtTime(noiseFreq, t, 0.03);
+                accelNoiseGain.gain.setTargetAtTime(noiseVol, t, 0.03);
+            }
+
+            if (currentAccel >= 0.18) {
+                startSnareRoll();
+            } else {
+                stopSnareRoll();
+            }
+        }
+
+        function startSnareRoll() {
+            if (snareRollTimer) return;
+            triggerSnareTick();
+        }
+
+        function triggerSnareTick() {
+            if (currentAccel < 0.18) {
+                stopSnareRoll();
+                return;
+            }
+            // Accelerates exponentially as throttle reaches 100%
+            const interval = Math.max(30, 260 - (Math.pow(currentAccel, 1.4) * 235));
+            playSnareTickSound();
+
+            snareRollTimer = setTimeout(() => {
+                snareRollTimer = null;
+                triggerSnareTick();
+            }, interval);
+        }
+
+        function stopSnareRoll() {
+            if (snareRollTimer) {
+                clearTimeout(snareRollTimer);
+                snareRollTimer = null;
+            }
+        }
+
+        function playSnareTickSound() {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            // Tam Kalın 808 Vuruş Darbesi (70Hz - 130Hz)
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(70 + (currentAccel * 65), t);
+            gain.gain.setValueAtTime(0.35 * currentAccel, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+            osc.connect(gain);
+            gain.connect(scratchGainNode || masterGainNode);
+            osc.start(t);
+            osc.stop(t + 0.045);
+        }
+
+        function triggerPartyInstantDrop() {
+            currentAccel = 1.0;
+            updateAccelUI();
+            stopAccelRiserSound();
+
+            // Detonate the authentic LG XBOOM Climax Boom (%150 ses)!
+            playExplosivePartyDrop();
+
+            // 1 Saniyelik Ekranda Işık Yanıp Sönme Efekti (Cam Kırıkları Kaldırıldı)
+            triggerPartyExplosionLight();
+
+            // 1 saniye sonra normale döner ve gaz pedalı sıfırlanır
+            setTimeout(() => {
+                killPartyAccelerator();
+            }, 1050);
+        }
+
+        function triggerPartyExplosionLight() {
+            const old = document.getElementById('explosionStrobeOverlay');
+            if (old) old.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'explosionStrobeOverlay';
+            overlay.className = 'explosion-strobe-overlay';
+            document.body.appendChild(overlay);
+
+            document.body.classList.remove('strobe-flash-1s');
+            document.body.classList.remove('screen-violentshake');
+            void document.body.offsetWidth;
+            document.body.classList.add('strobe-flash-1s');
+            document.body.classList.add('screen-violentshake');
+
+            // 1 saniye sonra ışık yanıp sönmesi tamamen biter ve ekran düzelir
+            setTimeout(() => {
+                if (overlay && overlay.parentNode) {
+                    overlay.remove();
+                }
+                document.body.classList.remove('strobe-flash-1s');
+                document.body.classList.remove('screen-violentshake');
+            }, 1000);
+        }
+
+        function playExplosivePartyDrop() {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+
+            // Maximum Headroom Dynamics Compressor
+            let destNode = masterGainNode;
+            try {
+                const comp = audioCtx.createDynamicsCompressor();
+                comp.threshold.setValueAtTime(-5, t);
+                comp.knee.setValueAtTime(10, t);
+                comp.ratio.setValueAtTime(16, t);
+                comp.attack.setValueAtTime(0.002, t);
+                comp.release.setValueAtTime(0.25, t);
+                comp.connect(masterGainNode);
+                destNode = comp;
+            } catch(e) {}
+
+            // 1. GERÇEK SİNEMATİK BOMBA PATLAMASI (%150 SES SEVİYESİ - 1.5x BOOST)
+            if (bombAudioBuffer) {
+                try {
+                    const src = audioCtx.createBufferSource();
+                    src.buffer = bombAudioBuffer;
+                    const gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(1.5, t); // %150 Ses Seviyesi
+                    src.connect(gain);
+                    gain.connect(destNode);
+                    src.start(t);
+                } catch(e) {
+                    console.warn('bombAudioBuffer play err:', e);
+                }
+            } else {
+                try {
+                    const fallbackAudio = new Audio('bomb_explosion.mp3?v=35257');
+                    fallbackAudio.volume = 1.0;
+                    fallbackAudio.play().catch(() => {});
+                } catch(e) {}
+            }
+
+            // 2. ULTRA-DERİN 808 SUB DEPREM ŞOK DALGASI (95Hz -> 24Hz Infrasound) (%150)
+            const oscSub = audioCtx.createOscillator();
+            const gainSub = audioCtx.createGain();
+            oscSub.type = 'sine';
+            oscSub.frequency.setValueAtTime(95, t);
+            oscSub.frequency.exponentialRampToValueAtTime(24, t + 1.8);
+            gainSub.gain.setValueAtTime(1.5, t); // %150
+            gainSub.gain.exponentialRampToValueAtTime(0.0001, t + 2.2);
+            oscSub.connect(gainSub);
+            gainSub.connect(destNode);
+            oscSub.start(t);
+            oscSub.stop(t + 2.25);
+
+            // 3. TOK CONCUSSIVE SUB-KICK DARBESİ (120Hz -> 32Hz) (%150)
+            const oscPunch = audioCtx.createOscillator();
+            const gainPunch = audioCtx.createGain();
+            oscPunch.type = 'sine';
+            oscPunch.frequency.setValueAtTime(120, t);
+            oscPunch.frequency.exponentialRampToValueAtTime(32, t + 0.16);
+            gainPunch.gain.setValueAtTime(1.5, t); // %150
+            gainPunch.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+            oscPunch.connect(gainPunch);
+            gainPunch.connect(destNode);
+            oscPunch.start(t);
+            oscPunch.stop(t + 0.2);
+
+            bumpMeter();
+        }
+
+        function toggleAutoPartyRiser() {
+            const btn = document.getElementById('carBtnAutoRiser');
+            if (autoRiserInterval) {
+                clearInterval(autoRiserInterval);
+                autoRiserInterval = null;
+                if (btn) btn.classList.remove('active');
+                killPartyAccelerator();
+                return;
+            }
+
+            if (btn) btn.classList.add('active');
+            setCarAccel(0.1);
+            let val = 0.1;
+            autoRiserInterval = setInterval(() => {
+                val += 0.035;
+                if (val >= 1.0) {
+                    clearInterval(autoRiserInterval);
+                    autoRiserInterval = null;
+                    if (btn) btn.classList.remove('active');
+                    setCarAccel(1.0); // Triggers the 100% Climax Boom automatically!
+                } else {
+                    setCarAccel(val);
+                }
+            }, 90);
+        }
+
+        function killPartyAccelerator() {
+            if (autoRiserInterval) {
+                clearInterval(autoRiserInterval);
+                autoRiserInterval = null;
+                const btn = document.getElementById('carBtnAutoRiser');
+                if (btn) btn.classList.remove('active');
+            }
+            hasExplodedAt100 = false;
+            setCarAccel(0.0);
+        }
+
+        function setupPedalInteraction() {
+            const track = document.getElementById('carPedalTrack');
+            if (!track) return;
+
+            function onPedalMove(e) {
+                if (!isPedalDragging) return;
+                e.preventDefault();
+                const rect = track.getBoundingClientRect();
+                const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
+                const pct = 1.0 - ((clientY - rect.top) / rect.height);
+                setCarAccel(pct);
+            }
+
+            function onPedalStart(e) {
+                isPedalDragging = true;
+                onPedalMove(e);
+            }
+
+            function onPedalEnd() {
+                if (isPedalDragging) {
+                    isPedalDragging = false;
+                }
+            }
+
+            track.addEventListener('mousedown', onPedalStart);
+            window.addEventListener('mousemove', onPedalMove);
+            window.addEventListener('mouseup', onPedalEnd);
+
+            track.addEventListener('touchstart', onPedalStart, { passive: false });
+            window.addEventListener('touchmove', onPedalMove, { passive: false });
+            window.addEventListener('touchend', onPedalEnd);
+        }
+
+        setupPedalInteraction();
+
+        // 8. 3 ÖZEL VIP SOUNDBOARD HITS (AIRHORN, DJ BURAK, GIVE ME TO MUSIC)
+        function flashPad(btn) {
+            if (!btn) return;
+            btn.classList.add('flashing');
+            setTimeout(() => btn.classList.remove('flashing'), 180);
+            bumpMeter();
+        }
+
+        function playCarHit(type, btn) {
+            initCarAudio();
+            flashPad(btn);
+            decodeAllPendingSounds();
+
+            const sound = vipSounds[type];
+            if (!sound) return;
+
+            if (sound.buffer) {
+                try {
+                    const src = audioCtx.createBufferSource();
+                    src.buffer = sound.buffer;
+
+                    // DJ BURAK SESİ %200 (2.0x Boost Gücü)
+                    const padBoost = audioCtx.createGain();
+                    const mult = (type === 'djburak') ? 2.0 : 1.0;
+                    padBoost.gain.setValueAtTime(mult, audioCtx.currentTime);
+
+                    src.connect(padBoost);
+                    padBoost.connect(hitGainNode);
+
+                    const offset = (sound.offset && sound.buffer.duration > sound.offset) ? sound.offset : 0;
+                    src.start(0, offset);
+                    return;
+                } catch(e) {
+                    console.warn('Buffer play err:', e);
+                }
+            }
+
+            try {
+                const fallbackAudio = new Audio(sound.url);
+                const vol = (hitGainNode && masterGainNode) ? (hitGainNode.gain.value * masterGainNode.gain.value) : 0.85;
+                fallbackAudio.volume = Math.max(0.1, Math.min(1.0, vol));
+                if (sound.offset) fallbackAudio.currentTime = sound.offset;
+                fallbackAudio.play().catch(() => {});
+            } catch(e) {}
+        }
+
+        // 10. DYNAMIC TACHOMETER / VU METER ANIMATOR
+        const meterRow = document.getElementById('ledMeterRow');
+        const TOTAL_SEGS = 20;
+
+        if (meterRow) {
+            for (let i = 0; i < TOTAL_SEGS; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'led-seg';
+                if (i < 12) seg.classList.add('green');
+                else if (i < 17) seg.classList.add('amber');
+                else seg.classList.add('red');
+                seg.id = `led_${i}`;
+                meterRow.appendChild(seg);
+            }
+        }
+
+        let meterLevel = 4;
+        function bumpMeter() {
+            meterLevel = Math.min(TOTAL_SEGS, meterLevel + 8);
+        }
+
+        setInterval(() => {
+            meterLevel = Math.max(3, meterLevel - 1);
+            if (isClupLooping && Math.random() > 0.4) {
+                meterLevel = Math.max(meterLevel, 9 + Math.floor(Math.random() * 8));
+            }
+            for (let i = 0; i < TOTAL_SEGS; i++) {
+                const seg = document.getElementById(`led_${i}`);
+                if (seg) {
+                    if (i < meterLevel) seg.classList.add('active');
+                    else seg.classList.remove('active');
+                }
+            }
+        }, 60);
+
+    </script>
+</body>
+</html>
